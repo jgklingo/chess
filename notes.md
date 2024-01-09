@@ -1,0 +1,1 @@
+These are my notes. I sure hope they end up in my repo.
