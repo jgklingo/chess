@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Represents a single chess piece
@@ -10,7 +12,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -29,7 +36,7 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return this.pieceColor;
     }
 
     /**
@@ -47,6 +54,47 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return diagonals(board, myPosition, board.getPiece(myPosition).getTeamColor());
+    }
+    private Collection<ChessMove> diagonals(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor color) {
+        // likely won't work for capturing, TODO: fix this
+        ChessPosition currentPosition = myPosition;
+        Collection<ChessMove> moves = new ArrayList<ChessMove>();
+
+        currentPosition = myPosition.tr();
+        while (canMove(board, currentPosition, color)) {
+            moves.add(new ChessMove(myPosition, currentPosition, null));
+            currentPosition = currentPosition.tr();
+        }
+
+        currentPosition = myPosition.tl();
+        while (canMove(board, currentPosition, color)) {
+            moves.add(new ChessMove(myPosition, currentPosition, null));
+            currentPosition = currentPosition.tl();
+        }
+
+        currentPosition = myPosition.br();
+        while (canMove(board, currentPosition, color)) {
+            moves.add(new ChessMove(myPosition, currentPosition, null));
+            currentPosition = currentPosition.br();
+        }
+
+        currentPosition = myPosition.bl();
+        while (canMove(board, currentPosition, color)) {
+            moves.add(new ChessMove(myPosition, currentPosition, null));
+            currentPosition = currentPosition.bl();
+        }
+
+        return moves;
+    }
+
+    /**
+     * Determines whether a position is a valid place to move a piece. It must be within the bounds of the 8x8 board and
+     * there must not already be a piece there. Does not take into account capturing.
+     * @return boolean
+     */
+    private Boolean canMove(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
+        return 0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9
+                && board.getPiece(position) == null;
     }
 }

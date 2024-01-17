@@ -29,4 +29,34 @@ public class ChessPosition {
     public int getColumn() {
         return col;
     }
+
+    public ChessPosition tr() {
+        return new ChessPosition(this.getRow() + 1, this.getColumn() + 1);
+    }
+    public ChessPosition r() {
+        return new ChessPosition(this.getRow(), this.getColumn() + 1);
+    }
+    public ChessPosition br() {
+        return new ChessPosition(this.getRow() - 1, this.getColumn() + 1);
+    }
+    public ChessPosition b() {
+        return new ChessPosition(this.getRow() - 1, this.getColumn());
+    }
+    public ChessPosition bl() {
+        return new ChessPosition(this.getRow() - 1, this.getColumn() - 1);
+    }
+    public ChessPosition l() {
+        return new ChessPosition(this.getRow(), this.getColumn() - 1);
+    }
+    public ChessPosition tl() {
+        return new ChessPosition(this.getRow() + 1, this.getColumn() - 1);
+    }
+    public ChessPosition t() {
+        return new ChessPosition(this.getRow() + 1, this.getColumn());
+    }
+
+    @Override
+    public String toString() {
+        return row + "," + col;
+    }
 }
