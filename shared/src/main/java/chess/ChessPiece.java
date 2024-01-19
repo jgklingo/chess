@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
 
 /**
  * Represents a single chess piece
@@ -62,30 +61,41 @@ public class ChessPiece {
         Collection<ChessMove> moves = new ArrayList<ChessMove>();
 
         currentPosition = myPosition.tr();
-        while (canMove(board, currentPosition, color)) {
+        while (canMove(board, currentPosition)) {
             moves.add(new ChessMove(myPosition, currentPosition, null));
             currentPosition = currentPosition.tr();
         }
+        capture(board, currentPosition, myPosition, moves);
 
         currentPosition = myPosition.tl();
-        while (canMove(board, currentPosition, color)) {
+        while (canMove(board, currentPosition)) {
             moves.add(new ChessMove(myPosition, currentPosition, null));
             currentPosition = currentPosition.tl();
         }
+        capture(board, currentPosition, myPosition, moves);
 
         currentPosition = myPosition.br();
-        while (canMove(board, currentPosition, color)) {
+        while (canMove(board, currentPosition)) {
             moves.add(new ChessMove(myPosition, currentPosition, null));
             currentPosition = currentPosition.br();
         }
+        capture(board, currentPosition, myPosition, moves);
 
         currentPosition = myPosition.bl();
-        while (canMove(board, currentPosition, color)) {
+        while (canMove(board, currentPosition)) {
             moves.add(new ChessMove(myPosition, currentPosition, null));
             currentPosition = currentPosition.bl();
         }
+        capture(board, currentPosition, myPosition, moves);
 
         return moves;
+    }
+    private void capture(ChessBoard board, ChessPosition position, ChessPosition currentPosition, Collection<ChessMove> moves) {
+        if (0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9 &&
+                board.getPiece(position).getTeamColor() != this.getTeamColor()) {
+//            board.removePiece(position);
+            moves.add(new ChessMove(currentPosition, position, null));
+        }
     }
 
     /**
@@ -93,7 +103,7 @@ public class ChessPiece {
      * there must not already be a piece there. Does not take into account capturing.
      * @return boolean
      */
-    private Boolean canMove(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
+    private Boolean canMove(ChessBoard board, ChessPosition position) {
         return 0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9
                 && board.getPiece(position) == null;
     }
