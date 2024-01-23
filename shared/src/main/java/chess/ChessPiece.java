@@ -3,6 +3,9 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import chess.PieceMoveCalculators.BishopMoveCalculator;
+import chess.PieceMoveCalculators.RookMoveCalculator;
+
 /**
  * Represents a single chess piece
  * <p>
@@ -42,7 +45,7 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return this.type;
     }
 
     /**
@@ -53,58 +56,12 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return diagonals(board, myPosition, board.getPiece(myPosition).getTeamColor());
-    }
-    private Collection<ChessMove> diagonals(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor color) {
-        // likely won't work for capturing, TODO: fix this
-        ChessPosition currentPosition = myPosition;
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
-
-        currentPosition = myPosition.tr();
-        while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
-            currentPosition = currentPosition.tr();
+        if (this.getPieceType() == PieceType.BISHOP) {
+            return BishopMoveCalculator.moves(board, myPosition);
+        } else if (this.getPieceType() == PieceType.ROOK) {
+            return RookMoveCalculator.moves(board, myPosition);
+        } else {
+            throw new RuntimeException("Piece not implemented!");
         }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.tl();
-        while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
-            currentPosition = currentPosition.tl();
-        }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.br();
-        while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
-            currentPosition = currentPosition.br();
-        }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.bl();
-        while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
-            currentPosition = currentPosition.bl();
-        }
-        capture(board, currentPosition, myPosition, moves);
-
-        return moves;
-    }
-    private void capture(ChessBoard board, ChessPosition position, ChessPosition currentPosition, Collection<ChessMove> moves) {
-        if (0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9 &&
-                board.getPiece(position).getTeamColor() != this.getTeamColor()) {
-//            board.removePiece(position);
-            moves.add(new ChessMove(currentPosition, position, null));
-        }
-    }
-
-    /**
-     * Determines whether a position is a valid place to move a piece. It must be within the bounds of the 8x8 board and
-     * there must not already be a piece there. Does not take into account capturing.
-     * @return boolean
-     */
-    private Boolean canMove(ChessBoard board, ChessPosition position) {
-        return 0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9
-                && board.getPiece(position) == null;
     }
 }
