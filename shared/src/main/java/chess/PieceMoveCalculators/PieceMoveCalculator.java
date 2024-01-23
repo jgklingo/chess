@@ -76,9 +76,9 @@ public class PieceMoveCalculator {
 
         return moves;
     }
-    private static void capture(ChessBoard board, ChessPosition position, ChessPosition currentPosition, Collection<ChessMove> moves) {
+    public static void capture(ChessBoard board, ChessPosition position, ChessPosition currentPosition, Collection<ChessMove> moves) {
         if (0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9 &&
-                board.getPiece(position).getTeamColor() != board.getPiece(currentPosition).getTeamColor()) {
+                board.getPiece(position) != null && board.getPiece(position).getTeamColor() != board.getPiece(currentPosition).getTeamColor()) {
             moves.add(new ChessMove(currentPosition, position, null));
         }
     }
@@ -87,8 +87,10 @@ public class PieceMoveCalculator {
      * there must not already be a piece there. Does not take into account capturing.
      * @return boolean
      */
-    private static Boolean canMove(ChessBoard board, ChessPosition position) {
-        return 0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9
-                && board.getPiece(position) == null;
+    public static Boolean canMove(ChessBoard board, ChessPosition position) {
+        return inbounds(board, position) && board.getPiece(position) == null;
+    }
+    public static Boolean inbounds(ChessBoard board, ChessPosition position) {
+        return 0 < position.getRow() && position.getRow() <= board.height && 0 < position.getColumn() && position.getColumn() <= board.width;
     }
 }

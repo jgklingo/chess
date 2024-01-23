@@ -3,8 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import chess.PieceMoveCalculators.BishopMoveCalculator;
-import chess.PieceMoveCalculators.RookMoveCalculator;
+import chess.PieceMoveCalculators.*;
 
 /**
  * Represents a single chess piece
@@ -56,12 +55,26 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if (this.getPieceType() == PieceType.BISHOP) {
-            return BishopMoveCalculator.moves(board, myPosition);
-        } else if (this.getPieceType() == PieceType.ROOK) {
-            return RookMoveCalculator.moves(board, myPosition);
-        } else {
-            throw new RuntimeException("Piece not implemented!");
+        switch (this.getPieceType()) {
+            case BISHOP -> {
+                return BishopMoveCalculator.moves(board, myPosition);
+            }
+            case ROOK -> {
+                return RookMoveCalculator.moves(board, myPosition);
+            }
+            case QUEEN -> {
+                return QueenMoveCalculator.moves(board, myPosition);
+            }
+            case KING -> {
+                return KingMoveCalculator.moves(board, myPosition);
+            }
+            case PAWN ->{
+                return PawnMoveCalculator.moves(board, myPosition);
+            }
+            case KNIGHT -> {
+                return KnightMoveCalculator.moves(board, myPosition);
+            }
         }
+        throw new RuntimeException("Piece not implemented!");
     }
 }
