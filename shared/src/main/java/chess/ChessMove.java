@@ -46,7 +46,11 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        return "ChessMove{" + this.startPosition.toString() + " -> " + this.endPosition.toString() + "}";
+        String str = "ChessMove{" + this.startPosition.toString() + " -> " + this.endPosition.toString() + "}";
+        if (this.promotionPiece != null) {
+            str += "(" + this.promotionPiece.toString() + ")";
+        }
+        return str;
     }
 
     @Override

@@ -2,6 +2,7 @@ package chess.PieceMoveCalculators;
 
 import chess.ChessBoard;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.util.ArrayList;
@@ -20,6 +21,16 @@ public class PawnMoveCalculator extends PieceMoveCalculator {
                 }
                 capture(board, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1), myPosition, moves);
                 capture(board, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1), myPosition, moves);
+
+                Collection<ChessMove> promotionMoves = new ArrayList<>();
+                for (ChessMove m : moves) if (m.getEndPosition().getRow() == 8) {
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.QUEEN));
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.ROOK));
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.KNIGHT));
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.BISHOP));
+                }
+                moves.removeIf(m -> m.getEndPosition().getRow() == 8);
+                moves.addAll(promotionMoves);
             }
             case BLACK -> {
                 if (canMove(board, myPosition.b())) {
@@ -30,8 +41,20 @@ public class PawnMoveCalculator extends PieceMoveCalculator {
                 }
                 capture(board, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1), myPosition, moves);
                 capture(board, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1), myPosition, moves);
+
+                Collection<ChessMove> promotionMoves = new ArrayList<>();
+                for (ChessMove m : moves) if (m.getEndPosition().getRow() == 1) {
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.QUEEN));
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.ROOK));
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.KNIGHT));
+                    promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.BISHOP));
+                }
+                moves.removeIf(m -> m.getEndPosition().getRow() == 1);
+                moves.addAll(promotionMoves);
             }
         }
+
+
 
         return moves;
     }
