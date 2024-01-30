@@ -1,96 +1,88 @@
 package chess.PieceMoveCalculators;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class PieceMoveCalculator {
-    public static Collection<ChessMove> diagonals(ChessBoard board, ChessPosition myPosition) {
+    public static ArrayList<ChessMove> diagonal(ChessBoard board, ChessPosition piecePosition) {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         ChessPosition currentPosition;
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
 
-        currentPosition = myPosition.tr();
+        currentPosition = piecePosition.tr();
         while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
             currentPosition = currentPosition.tr();
         }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.tl();
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
+        currentPosition = piecePosition.br();
         while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
-            currentPosition = currentPosition.tl();
-        }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.br();
-        while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
             currentPosition = currentPosition.br();
         }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.bl();
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
+        currentPosition = piecePosition.bl();
         while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
             currentPosition = currentPosition.bl();
         }
-        capture(board, currentPosition, myPosition, moves);
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
+        currentPosition = piecePosition.tl();
+        while (canMove(board, currentPosition)) {
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
+            currentPosition = currentPosition.tl();
+        }
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
 
         return moves;
     }
-    public static Collection<ChessMove> verticals(ChessBoard board, ChessPosition myPosition) {
+    public static ArrayList<ChessMove> vertical(ChessBoard board, ChessPosition piecePosition) {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         ChessPosition currentPosition;
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
 
-        currentPosition = myPosition.t();
+        currentPosition = piecePosition.t();
         while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
             currentPosition = currentPosition.t();
         }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.b();
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
+        currentPosition = piecePosition.r();
         while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
-            currentPosition = currentPosition.b();
-        }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.r();
-        while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
             currentPosition = currentPosition.r();
         }
-        capture(board, currentPosition, myPosition, moves);
-
-        currentPosition = myPosition.l();
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
+        currentPosition = piecePosition.b();
         while (canMove(board, currentPosition)) {
-            moves.add(new ChessMove(myPosition, currentPosition, null));
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
+            currentPosition = currentPosition.b();
+        }
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
+        currentPosition = piecePosition.l();
+        while (canMove(board, currentPosition)) {
+            moves.add(new ChessMove(piecePosition, currentPosition, null));
             currentPosition = currentPosition.l();
         }
-        capture(board, currentPosition, myPosition, moves);
+        moves.addAll(capture(board, piecePosition, currentPosition, board.getPiece(piecePosition).getTeamColor()));
 
         return moves;
     }
-    public static void capture(ChessBoard board, ChessPosition position, ChessPosition currentPosition, Collection<ChessMove> moves) {
-        if (0 < position.getRow() && position.getRow() < 9 && 0 < position.getColumn() && position.getColumn() < 9 &&
-                board.getPiece(position) != null && board.getPiece(position).getTeamColor() != board.getPiece(currentPosition).getTeamColor()) {
-            moves.add(new ChessMove(currentPosition, position, null));
+
+    public static boolean canMove(ChessBoard board, ChessPosition position) {
+        return position.getColumn() > 0 && position.getColumn() < 9 && position.getRow() > 0 && position.getRow() < 9 &&
+                board.getPiece(position) == null;
+    }
+    public static ArrayList<ChessMove> capture(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition,
+                                               ChessGame.TeamColor color) {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        if (endPosition.getColumn() > 0 && endPosition.getColumn() < 9 && endPosition.getRow() > 0 &&
+                endPosition.getRow() < 9 && board.getPiece(endPosition) != null &&
+                board.getPiece(endPosition).getTeamColor() != color) {
+            moves.add(new ChessMove(startPosition, endPosition, null));
         }
-    }
-    /**
-     * Determines whether a position is a valid place to move a piece. It must be within the bounds of the 8x8 board and
-     * there must not already be a piece there. Does not take into account capturing.
-     * @return boolean
-     */
-    public static Boolean canMove(ChessBoard board, ChessPosition position) {
-        return inbounds(board, position) && board.getPiece(position) == null;
-    }
-    public static Boolean inbounds(ChessBoard board, ChessPosition position) {
-        return 0 < position.getRow() && position.getRow() <= board.height && 0 < position.getColumn() && position.getColumn() <= board.width;
+        return moves;
     }
 }

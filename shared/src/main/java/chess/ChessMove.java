@@ -27,6 +27,7 @@ public class ChessMove {
     public ChessPosition getStartPosition() {
         return this.startPosition;
     }
+
     /**
      * @return ChessPosition of ending location
      */
@@ -41,16 +42,7 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public String toString() {
-        String str = "ChessMove{" + this.startPosition.toString() + " -> " + this.endPosition.toString() + "}";
-        if (this.promotionPiece != null) {
-            str += "(" + this.promotionPiece.toString() + ")";
-        }
-        return str;
+        return this.promotionPiece;
     }
 
     @Override
@@ -64,5 +56,12 @@ public class ChessMove {
     @Override
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + startPosition +
+                "->" + endPosition +
+                ")";
     }
 }

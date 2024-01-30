@@ -4,12 +4,13 @@ import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPosition;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 public class QueenMoveCalculator extends PieceMoveCalculator {
-    public static Collection<ChessMove> moves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> movesCollection = verticals(board, myPosition);
-        movesCollection.addAll(diagonals(board, myPosition));
-        return movesCollection;
+    public static ArrayList<ChessMove> moves(ChessBoard board, ChessPosition position) {
+        ArrayList<ChessMove> moves = vertical(board, position);
+        moves.addAll(diagonal(board, position));
+        return moves;
     }
+
 }

@@ -1,10 +1,9 @@
 package chess;
 
-import java.util.ArrayList;
+import chess.PieceMoveCalculators.*;
+
 import java.util.Collection;
 import java.util.Objects;
-
-import chess.PieceMoveCalculators.*;
 
 /**
  * Represents a single chess piece
@@ -48,19 +47,6 @@ public class ChessPiece {
         return this.type;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(pieceColor, type);
-    }
-
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -69,7 +55,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch (this.getPieceType()) {
+        switch (board.getPiece(myPosition).getPieceType()) {
             case BISHOP -> {
                 return BishopMoveCalculator.moves(board, myPosition);
             }
@@ -82,13 +68,26 @@ public class ChessPiece {
             case KING -> {
                 return KingMoveCalculator.moves(board, myPosition);
             }
-            case PAWN ->{
-                return PawnMoveCalculator.moves(board, myPosition);
-            }
             case KNIGHT -> {
                 return KnightMoveCalculator.moves(board, myPosition);
             }
+            case PAWN -> {
+                return PawnMoveCalculator.moves(board, myPosition);
+            }
         }
         throw new RuntimeException("Piece not implemented!");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }

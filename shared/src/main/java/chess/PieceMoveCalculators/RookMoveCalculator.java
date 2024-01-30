@@ -4,10 +4,10 @@ import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPosition;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 public class RookMoveCalculator extends PieceMoveCalculator {
-    public static Collection<ChessMove> moves(ChessBoard board, ChessPosition myPosition) {
-        return verticals(board, myPosition);
+    public static ArrayList<ChessMove> moves(ChessBoard board, ChessPosition position) {
+        return vertical(board, position);
     }
 }

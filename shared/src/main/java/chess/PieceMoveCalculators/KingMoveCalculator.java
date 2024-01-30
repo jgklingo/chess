@@ -5,26 +5,27 @@ import chess.ChessMove;
 import chess.ChessPosition;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
 
 public class KingMoveCalculator extends PieceMoveCalculator {
-    public static Collection<ChessMove> moves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
-        Collection<ChessPosition> possiblePositions = new ArrayList<ChessPosition>();
-        possiblePositions.add(myPosition.b());
-        possiblePositions.add(myPosition.bl());
-        possiblePositions.add(myPosition.l());
-        possiblePositions.add(myPosition.tl());
-        possiblePositions.add(myPosition.t());
-        possiblePositions.add(myPosition.tr());
-        possiblePositions.add(myPosition.r());
-        possiblePositions.add(myPosition.br());
+    public static ArrayList<ChessMove> moves(ChessBoard board, ChessPosition position) {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
 
-        for (ChessPosition p : possiblePositions) if (canMove(board,p)) {
-            moves.add(new ChessMove(myPosition, p, null));
-        } else if (inbounds(board, p)) {
-            capture(board, p, myPosition, moves);
+        ArrayList<ChessPosition> possiblePositions = new ArrayList<>();
+        possiblePositions.add(position.t());
+        possiblePositions.add(position.tr());
+        possiblePositions.add(position.r());
+        possiblePositions.add(position.br());
+        possiblePositions.add(position.b());
+        possiblePositions.add(position.bl());
+        possiblePositions.add(position.l());
+        possiblePositions.add(position.tl());
+
+        for (ChessPosition p : possiblePositions) {
+            if (canMove(board, p)) {
+                moves.add(new ChessMove(position, p, null));
+            } else {
+                moves.addAll(capture(board, position, p, board.getPiece(position).getTeamColor()));
+            }
         }
 
         return moves;
