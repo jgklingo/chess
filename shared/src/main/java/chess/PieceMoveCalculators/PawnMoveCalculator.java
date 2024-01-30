@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class PawnMoveCalculator extends PieceMoveCalculator {
     public static ArrayList<ChessMove> moves(ChessBoard board, ChessPosition position) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> moves = new ArrayList<>();
 
         switch (board.getPiece(position).getTeamColor()) {
             case BLACK -> {
@@ -31,14 +31,12 @@ public class PawnMoveCalculator extends PieceMoveCalculator {
             }
         }
 
-        ArrayList<ChessMove> promotionMoves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> promotionMoves = new ArrayList<>();
         for (ChessMove m : moves) {
-            if (board.getPiece(m.getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK && m.getEndPosition().getRow() == 1) {
-                promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.QUEEN));
-                promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.BISHOP));
-                promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.ROOK));
-                promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.KNIGHT));
-            } else if (board.getPiece(m.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE && m.getEndPosition().getRow() == 8) {
+            if ((board.getPiece(m.getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK
+                    && m.getEndPosition().getRow() == 1)
+                    || (board.getPiece(m.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE
+                    && m.getEndPosition().getRow() == 8)) {
                 promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.QUEEN));
                 promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.BISHOP));
                 promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.ROOK));
