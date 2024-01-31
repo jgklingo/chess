@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -8,7 +9,7 @@ import java.util.Arrays;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Iterable<ChessPosition> {
     ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
         
@@ -74,6 +75,32 @@ public class ChessBoard {
         addPiece(new ChessPosition(7,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         addPiece(new ChessPosition(7,7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         addPiece(new ChessPosition(7,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+    }
+
+    @Override
+    public Iterator<ChessPosition> iterator() {
+        return new Iterator<>() {
+            private int c = 1;
+            private int r = 1;
+
+            @Override
+            public boolean hasNext() {
+                return c < 8 || r < 8;
+            }
+
+            @Override
+            public ChessPosition next() {
+                int i = r;
+                int j = c;
+                if (r < 8) {
+                    r += 1;
+                } else if (c < 8) {
+                    r = 1;
+                    c += 1;
+                }
+                return new ChessPosition(i, j);
+            }
+        };
     }
 
     @Override
