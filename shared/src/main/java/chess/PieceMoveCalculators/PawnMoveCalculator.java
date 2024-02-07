@@ -43,8 +43,14 @@ public class PawnMoveCalculator extends PieceMoveCalculator {
                 promotionMoves.add(new ChessMove(m.getStartPosition(), m.getEndPosition(), ChessPiece.PieceType.KNIGHT));
             }
         }
-        moves.removeIf(chessMove -> board.getPiece(chessMove.getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK && chessMove.getEndPosition().getRow() == 1 && chessMove.getPromotionPiece() == null);
-        moves.removeIf(chessMove -> board.getPiece(chessMove.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE && chessMove.getEndPosition().getRow() == 8 && chessMove.getPromotionPiece() == null);
+        moves.removeIf(chessMove ->
+                board.getPiece(chessMove.getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK
+                        && chessMove.getEndPosition().getRow() == 1
+                        && chessMove.getPromotionPiece() == null);
+        moves.removeIf(chessMove ->
+                board.getPiece(chessMove.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE
+                        && chessMove.getEndPosition().getRow() == 8
+                        && chessMove.getPromotionPiece() == null);
         moves.addAll(promotionMoves);
 
         return moves;

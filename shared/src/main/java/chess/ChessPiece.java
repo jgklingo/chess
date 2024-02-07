@@ -21,6 +21,12 @@ public class ChessPiece {
         this.type = type;
     }
 
+    public ChessPiece(ChessPiece copyPiece) {
+        // Copy constructor
+        pieceColor = copyPiece.getTeamColor();
+        type = copyPiece.getPieceType();
+    }
+
     /**
      * The various different chess piece options
      */

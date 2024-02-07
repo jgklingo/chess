@@ -11,8 +11,16 @@ import java.util.Iterator;
  */
 public class ChessBoard implements Iterable<ChessPosition> {
     ChessPiece[][] board = new ChessPiece[8][8];
-    public ChessBoard() {
-        
+    public ChessBoard() {}
+
+    public ChessBoard(ChessBoard copyBoard) {
+        // Copy constructor
+        this.board = new ChessPiece[8][8];
+        for (ChessPosition position : copyBoard) {
+            if (copyBoard.getPiece(position) != null) {
+                this.addPiece(position, new ChessPiece(copyBoard.getPiece(position)));
+            }
+        }
     }
 
     /**
@@ -23,6 +31,10 @@ public class ChessBoard implements Iterable<ChessPosition> {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow()-1][position.getColumn()-1] = piece;
+    }
+
+    public void removePiece(ChessPosition position) {
+        board [position.getRow()-1][position.getColumn()-1] = null;
     }
 
     /**
@@ -90,15 +102,13 @@ public class ChessBoard implements Iterable<ChessPosition> {
 
             @Override
             public ChessPosition next() {
-                int i = r;
-                int j = c;
-                if (r < 8) {
-                    r += 1;
-                } else if (c < 8) {
-                    r = 1;
+                if (c < 8) {
                     c += 1;
+                } else {
+                    c = 1;
+                    r += 1;
                 }
-                return new ChessPosition(i, j);
+                return new ChessPosition(r, c);
             }
         };
     }
