@@ -92,7 +92,7 @@ public class ChessBoard implements Iterable<ChessPosition> {
     @Override
     public Iterator<ChessPosition> iterator() {
         return new Iterator<>() {
-            private int c = 1;
+            private int c = 0;
             private int r = 1;
 
             @Override
@@ -112,6 +112,25 @@ public class ChessBoard implements Iterable<ChessPosition> {
             }
         };
     }
+
+//    @Override
+//    public String toString() {
+//        StringBuilder str = new StringBuilder("\n|");
+//        int r = 1;
+//        for (ChessPosition position : this) {
+//            if (this.getPiece(position) == null) {
+//                str.append(" |");
+//            } else {
+//                str.append(this.getPiece(position).toString()).append("|");
+//            }
+//            if (position.getRow() != r) {
+//                str.append("\n|");
+//                r = position.getRow();
+//            }
+//        }
+//        str.append("\n");
+//        return str.reverse().toString();
+//    }
 
     @Override
     public boolean equals(Object o) {
