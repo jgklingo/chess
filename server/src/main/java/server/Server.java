@@ -55,8 +55,8 @@ public class Server {
 
     private Object clear(Request req, Response res) throws DataAccessException {
         clearService.deleteDB();
-//        res.status(200);
-        return "";
+        res.status(200);
+        return 200; // TODO: make sure this is right
     }
 
     public void stop() {
