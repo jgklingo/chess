@@ -3,6 +3,9 @@ package service;
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import model.AuthData;
+import model.UserData;
+
+import java.util.UUID;
 
 public class AuthService {
     private final DataAccess dataAccess;
@@ -11,7 +14,26 @@ public class AuthService {
         this.dataAccess = dataAccess;
     }
 
-    public AuthData createAuth(AuthData authData) throws DataAccessException {
+    public AuthData createAuth(UserData userData) throws DataAccessException {
+        AuthData authData = new AuthData(UUID.randomUUID().toString(), userData.username());
         return dataAccess.createAuth(authData);
+    }
+
+    public AuthData login(UserData userData) throws DataAccessException {
+        AuthData authData;
+        if (dataAccess.checkUser(userData)) {
+            authData = createAuth(userData);
+        } else {
+            authData = null;
+        }
+        return authData;
+    }
+
+    public void logout(String authToken) throws DataAccessException {
+        dataAccess.deleteAuth(authToken);
+    }
+
+    public AuthData checkAuth (String authToken) throws DataAccessException {
+        return dataAccess.checkAuth(authToken);
     }
 }

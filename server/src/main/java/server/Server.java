@@ -34,9 +34,9 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
-//        Spark.post("/session", this::login);
-//        Spark.delete("/session", this::logout);
-//        Spark.get("/game", this::listGames);
+        Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
+        Spark.get("/game", this::listGames);
 //        Spark.post("/game", this::createGame);
 //        Spark.put("/game", this::joinGame);
 
@@ -47,16 +47,33 @@ public class Server {
     private Object register(Request req, Response res) throws DataAccessException {
         var userData = new Gson().fromJson(req.body(), UserData.class);
         userData = registrationService.register(userData);
-
-        AuthData authData = new AuthData(UUID.randomUUID().toString(), userData.username());
-        authData = authService.createAuth(authData);
+        AuthData authData = authService.createAuth(userData);
         return new Gson().toJson(authData);
+    }
+
+    private Object login(Request req, Response res) throws DataAccessException {
+        var userData = new Gson().fromJson(req.body(), UserData.class);
+        AuthData authData = authService.login(userData);
+        return new Gson().toJson(authData);
+    }
+
+    private Object logout(Request req, Response res) throws DataAccessException {
+        String authToken = req.headers("authorization");
+        authService.logout(authToken);
+        return 200;
+    }
+
+    private Object listGames(Request req, Response res) throws DataAccessException {
+        String authToken = req.headers("authorization");
+        AuthData authData = authService.checkAuth(authToken);
+        var games = gameService.listGames(authData.username());
+        return new Gson().toJson(games);
     }
 
     private Object clear(Request req, Response res) throws DataAccessException {
         clearService.deleteDB();
         res.status(200);
-        return 200; // TODO: make sure this is right
+        return 200; // TODO: fix this
     }
 
     public void stop() {
