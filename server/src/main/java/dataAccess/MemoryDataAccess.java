@@ -16,7 +16,13 @@ public class MemoryDataAccess implements DataAccess{
     final private HashMap<String, AuthData> authTokens = new HashMap<>();
 
     public UserData createUser(UserData userData) throws DataAccessException {
+        if (userData.username() == null || userData.password() == null || userData.email() == null) {
+            throw new DataAccessException("Error: bad request", 400);
+        }
         userData = new UserData(userData.username(), userData.password(), userData.email());
+        if (users.containsKey(userData.username())) {
+            throw new DataAccessException("Error: already taken", 403);
+        }
         users.put(userData.username(), userData);
         return userData;
     }
@@ -29,10 +35,16 @@ public class MemoryDataAccess implements DataAccess{
 
     public boolean checkUser(UserData userData) throws DataAccessException {
         UserData record = users.get(userData.username());
-        return Objects.equals(userData.password(), record.password());
+        if (record == null || !Objects.equals(userData.password(), record.password())) {
+            throw new DataAccessException("Error: unauthorized", 401);
+        }
+        return true;
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
+        if (!authTokens.containsKey(authToken)) {
+            throw new DataAccessException("Error: unauthorized", 401);
+        }
         authTokens.remove(authToken);
     }
 
@@ -44,11 +56,20 @@ public class MemoryDataAccess implements DataAccess{
         ArrayList<GameData> gameList = new ArrayList<>();
         for (Integer id : games.keySet()) {
             GameData gameData = games.get(id);
-            if (gameData.blackUsername().equals(username) || gameData.whiteUsername().equals(username)) {
+
+            if ((gameData.blackUsername() != null && gameData.blackUsername().equals(username))
+                    || (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username))) {
                 gameList.add(gameData);
             }
         }
         return gameList;
+    }
+
+    public GameData newGame(String name) throws DataAccessException {
+        int id = gameID++;
+        var game = new GameData(id, null, null, name, null);
+        games.put(id, game);
+        return game;
     }
 
     public void deleteDB() throws DataAccessException {

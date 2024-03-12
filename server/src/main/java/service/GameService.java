@@ -16,4 +16,8 @@ public class GameService {
     public ArrayList<GameData> listGames(String username) throws DataAccessException {
         return dataAccess.getGames(username);
     }
+
+    public GameData createGame(String name) throws DataAccessException {
+        return dataAccess.newGame(name);
+    }
 }

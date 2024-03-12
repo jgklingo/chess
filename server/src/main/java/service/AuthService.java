@@ -24,7 +24,7 @@ public class AuthService {
         if (dataAccess.checkUser(userData)) {
             authData = createAuth(userData);
         } else {
-            authData = null;
+            throw new DataAccessException("Error: unauthorized", 401);
         }
         return authData;
     }
