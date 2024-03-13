@@ -11,7 +11,8 @@ import service.GameService;
 import service.RegistrationService;
 import spark.*;
 
-import java.util.UUID;
+import javax.xml.crypto.Data;
+import java.util.HashMap;
 
 public class Server {
     private final AuthService authService;
@@ -56,7 +57,7 @@ public class Server {
             AuthData authData = authService.createAuth(userData);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
-            return exceptionToJSON(e, res);
+            return exceptionParser(e, res);
         }
     }
 
@@ -66,52 +67,69 @@ public class Server {
             AuthData authData = authService.login(userData);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
-            return exceptionToJSON(e, res);
+            return exceptionParser(e, res);
         }
     }
 
     private Object logout(Request req, Response res) throws DataAccessException {
         try {
             String authToken = req.headers("authorization");
+            authService.checkAuth(authToken);
             authService.logout(authToken);
             return "";
         } catch (DataAccessException e) {
-            return exceptionToJSON(e, res);
+            return exceptionParser(e, res);
         }
     }
 
     private Object listGames(Request req, Response res) throws DataAccessException {
-        String authToken = req.headers("authorization");
-        AuthData authData = authService.checkAuth(authToken);
-        var games = gameService.listGames(authData.username());
-        return new Gson().toJsonTree(games);
+        try {
+            String authToken = req.headers("authorization");
+            AuthData authData = authService.checkAuth(authToken);
+            var games = gameService.listGames(authData.username());
+            return new Gson().toJson(games);
+        } catch (DataAccessException e) {
+            return exceptionParser(e, res);
+        }
     }
 
     private Object createGame(Request req, Response res) throws DataAccessException {
-        var name = "test";
-        String authToken = req.headers("authorization");
-        AuthData authData = authService.checkAuth(authToken);
-        GameData gameData = gameService.createGame(name);
-        return new Gson().toJson(gameData);
+        try {
+            var name = (String) new Gson().fromJson(req.body(), HashMap.class).get("gameName");
+            String authToken = req.headers("authorization");
+            AuthData authData = authService.checkAuth(authToken);
+            GameData gameData = gameService.createGame(name);
+            return new Gson().toJson(gameData);
+        } catch (DataAccessException e) {
+            return exceptionParser(e, res);
+        }
     }
 
     private Object joinGame(Request req, Response res) throws DataAccessException {
-//        String authToken = req.headers("authorization");
-//        AuthData authData = authService.checkAuth(authToken);
+        try {
+            String authToken = req.headers("authorization");
+            var requestBody = new Gson().fromJson(req.body(), HashMap.class);
+            var playerColor = (String) requestBody.get("playerColor");
+            var gameID = (Double) requestBody.get("gameID");
+            AuthData authData = authService.checkAuth(authToken);
+            gameService.joinGame(authData, playerColor, gameID.intValue());
 //        var name = new Gson().fromJson(req.body(), String.class);
+        } catch (DataAccessException e) {
+            return exceptionParser(e, res);
+        }
         return "";
     }
 
     private Object clear(Request req, Response res) throws DataAccessException {
         try {
             clearService.deleteDB();
-            return ""; // TODO: fix this
+            return "";
         } catch (DataAccessException e) {
-            return exceptionToJSON(e, res);
+            return exceptionParser(e, res);
         }
     }
 
-    private String exceptionToJSON(DataAccessException e, Response res) {
+    private String exceptionParser(DataAccessException e, Response res) {
         res.status(e.StatusCode());
         return new Gson().toJson(new jsonResponse(e.getMessage()));
     }

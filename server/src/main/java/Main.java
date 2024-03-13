@@ -6,7 +6,7 @@ public class Main {
 //        var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
 //        System.out.println("♕ 240 Chess Server: " + piece);
         Server server = new Server();
-        int port = server.run(44511);
+        int port = server.run(8080);
         System.out.printf("Server started on port %d\n", port);
     }
 }

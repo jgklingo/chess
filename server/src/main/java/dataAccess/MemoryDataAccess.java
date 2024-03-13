@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import service.AuthService;
+import service.GameService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,34 +43,55 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
-        if (!authTokens.containsKey(authToken)) {
-            throw new DataAccessException("Error: unauthorized", 401);
-        }
         authTokens.remove(authToken);
     }
 
     public AuthData checkAuth(String authToken) throws DataAccessException {
+        if (!authTokens.containsKey(authToken)) {
+            throw new DataAccessException("Error: unauthorized", 401);
+        }
         return authTokens.get(authToken);
     }
 
-    public ArrayList<GameData> getGames(String username) throws DataAccessException {
+    public ArrayList<GameData> getGames() throws DataAccessException {
         ArrayList<GameData> gameList = new ArrayList<>();
         for (Integer id : games.keySet()) {
-            GameData gameData = games.get(id);
-
-            if ((gameData.blackUsername() != null && gameData.blackUsername().equals(username))
-                    || (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username))) {
-                gameList.add(gameData);
-            }
+            gameList.add(games.get(id));
         }
         return gameList;
     }
 
     public GameData newGame(String name) throws DataAccessException {
+        if (name == null || name.isEmpty()) {
+            throw new DataAccessException("Error: bad request", 400);
+        }
         int id = gameID++;
-        var game = new GameData(id, null, null, name, null);
+        var game = new GameData(id, "", "", name, null);
         games.put(id, game);
         return game;
+    }
+
+    public void addPlayer(String username, String playerColor, Integer gameID) throws DataAccessException{
+        var game = games.get(gameID);
+        if (game == null) {
+            throw new DataAccessException("Error: bad request", 400);
+        }
+        if (playerColor == null || playerColor.isBlank()) {
+            // add as observer
+        }
+        else if (playerColor.equals("BLACK")) {
+            if (!Objects.equals(game.blackUsername(), "")) {
+                throw new DataAccessException("Error: already taken", 403);
+            }
+            games.put(game.gameID(),
+                    new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
+        } else if (playerColor.equals("WHITE")) {
+            if (!Objects.equals(game.whiteUsername(), "")) {
+                throw new DataAccessException("Error: already taken", 403);
+            }
+            games.put(game.gameID(),
+                    new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
+        }
     }
 
     public void deleteDB() throws DataAccessException {
