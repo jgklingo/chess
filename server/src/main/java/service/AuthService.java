@@ -30,6 +30,7 @@ public class AuthService {
     }
 
     public void logout(String authToken) throws DataAccessException {
+        dataAccess.checkAuth(authToken);
         dataAccess.deleteAuth(authToken);
     }
 

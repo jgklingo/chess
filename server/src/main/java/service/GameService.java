@@ -22,7 +22,7 @@ public class GameService {
         return dataAccess.newGame(name);
     }
 
-    public void joinGame(AuthData authData, String playerColor, Integer gameID) throws DataAccessException {
-        dataAccess.addPlayer(authData.username(), playerColor, gameID);
+    public void joinGame(String username, String playerColor, Integer gameID) throws DataAccessException {
+        dataAccess.addPlayer(username, playerColor, gameID);
     }
 }

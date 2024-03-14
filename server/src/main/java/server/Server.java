@@ -118,7 +118,7 @@ public class Server {
             var playerColor = (String) requestBody.get("playerColor");
             var gameID = (Double) requestBody.get("gameID");
             AuthData authData = authService.checkAuth(authToken);
-            gameService.joinGame(authData, playerColor, gameID.intValue());
+            gameService.joinGame(authData.username(), playerColor, gameID.intValue());
 //        var name = new Gson().fromJson(req.body(), String.class);
         } catch (DataAccessException e) {
             return exceptionParser(e, res);
