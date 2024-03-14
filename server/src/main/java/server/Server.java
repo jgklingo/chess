@@ -12,6 +12,7 @@ import service.RegistrationService;
 import spark.*;
 
 import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Server {
@@ -85,9 +86,15 @@ public class Server {
     private Object listGames(Request req, Response res) throws DataAccessException {
         try {
             String authToken = req.headers("authorization");
-            AuthData authData = authService.checkAuth(authToken);
-            var games = gameService.listGames(authData.username());
-            return new Gson().toJson(games);
+            authService.checkAuth(authToken);
+            var games = gameService.listGames();
+
+            var gameListJSON = new HashMap<String, ArrayList<GameData>>();
+            gameListJSON.put("games", new ArrayList<>());
+            gameListJSON.get("games").addAll(games.values());
+
+            return new Gson().toJson(gameListJSON);
+//            return "{\"test\": \"foo bar\"}";
         } catch (DataAccessException e) {
             return exceptionParser(e, res);
         }

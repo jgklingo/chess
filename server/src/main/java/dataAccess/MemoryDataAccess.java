@@ -3,8 +3,6 @@ package dataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import service.AuthService;
-import service.GameService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,12 +51,8 @@ public class MemoryDataAccess implements DataAccess{
         return authTokens.get(authToken);
     }
 
-    public ArrayList<GameData> getGames() throws DataAccessException {
-        ArrayList<GameData> gameList = new ArrayList<>();
-        for (Integer id : games.keySet()) {
-            gameList.add(games.get(id));
-        }
-        return gameList;
+    public HashMap<Integer, GameData> getGames() throws DataAccessException {
+        return games;
     }
 
     public GameData newGame(String name) throws DataAccessException {
@@ -66,7 +60,7 @@ public class MemoryDataAccess implements DataAccess{
             throw new DataAccessException("Error: bad request", 400);
         }
         int id = gameID++;
-        var game = new GameData(id, "", "", name, null);
+        var game = new GameData(id, null, null, name, null);
         games.put(id, game);
         return game;
     }
@@ -80,13 +74,13 @@ public class MemoryDataAccess implements DataAccess{
             // add as observer
         }
         else if (playerColor.equals("BLACK")) {
-            if (!Objects.equals(game.blackUsername(), "")) {
+            if (game.blackUsername() != null) {
                 throw new DataAccessException("Error: already taken", 403);
             }
             games.put(game.gameID(),
                     new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game()));
         } else if (playerColor.equals("WHITE")) {
-            if (!Objects.equals(game.whiteUsername(), "")) {
+            if (game.whiteUsername() != null) {
                 throw new DataAccessException("Error: already taken", 403);
             }
             games.put(game.gameID(),

@@ -4,9 +4,8 @@ import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GameService {
     private final DataAccess dataAccess;
@@ -15,7 +14,7 @@ public class GameService {
         this.dataAccess = dataAccess;
     }
 
-    public ArrayList<GameData> listGames(String username) throws DataAccessException {
+    public HashMap<Integer, GameData> listGames() throws DataAccessException {
         return dataAccess.getGames();
     }
 
