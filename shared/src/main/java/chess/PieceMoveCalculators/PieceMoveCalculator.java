@@ -85,4 +85,14 @@ public class PieceMoveCalculator {
         }
         return moves;
     }
+
+    public static void checkMoveList(ChessBoard board, ChessPosition position, ArrayList<ChessPosition> possiblePositions, ArrayList<ChessMove> moves) {
+        for (ChessPosition p : possiblePositions) {
+            if (canMove(board, p)) {
+                moves.add(new ChessMove(position, p, null));
+            } else {
+                moves.addAll(capture(board, position, p, board.getPiece(position).getTeamColor()));
+            }
+        }
+    }
 }

@@ -9,7 +9,7 @@ public class DataAccessException extends Exception{
         super(message);
         this.statusCode = statusCode;
     }
-    public Integer StatusCode() {
+    public Integer statusCode() {
         return this.statusCode;
     }
 }

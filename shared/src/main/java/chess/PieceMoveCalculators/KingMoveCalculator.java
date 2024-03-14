@@ -20,13 +20,7 @@ public class KingMoveCalculator extends PieceMoveCalculator {
         possiblePositions.add(position.l());
         possiblePositions.add(position.tl());
 
-        for (ChessPosition p : possiblePositions) {
-            if (canMove(board, p)) {
-                moves.add(new ChessMove(position, p, null));
-            } else {
-                moves.addAll(capture(board, position, p, board.getPiece(position).getTeamColor()));
-            }
-        }
+        checkMoveList(board, position, possiblePositions, moves);
 
         return moves;
     }

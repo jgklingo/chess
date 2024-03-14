@@ -11,7 +11,6 @@ import service.GameService;
 import service.RegistrationService;
 import spark.*;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -48,7 +47,7 @@ public class Server {
     }
 
     private void exceptionHandler(DataAccessException ex, Request req, Response res) {
-        res.status(ex.StatusCode());
+        res.status(ex.statusCode());
     }
 
     private Object register(Request req, Response res) throws DataAccessException {
@@ -137,8 +136,8 @@ public class Server {
     }
 
     private String exceptionParser(DataAccessException e, Response res) {
-        res.status(e.StatusCode());
-        return new Gson().toJson(new jsonResponse(e.getMessage()));
+        res.status(e.statusCode());
+        return new Gson().toJson(new JsonResponse(e.getMessage()));
     }
 
     public void stop() {
