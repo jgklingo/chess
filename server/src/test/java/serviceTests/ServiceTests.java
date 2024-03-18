@@ -12,6 +12,8 @@ import service.RegistrationService;
 
 import java.util.Objects;
 
+// These are NOT good tests
+
 public class ServiceTests {
     private static final DataAccess dataAccess = new MemoryDataAccess();
     private static final AuthService authService = new AuthService(dataAccess);
