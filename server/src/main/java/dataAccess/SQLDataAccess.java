@@ -13,15 +13,62 @@ public class SQLDataAccess implements DataAccess {
         configureDatabase();
     }
     public UserData createUser(UserData userData) throws DataAccessException {
-        return null;
+        if (userData.username() == null || userData.password() == null || userData.email() == null) {
+            throw new DataAccessException("Error: bad request", 400);
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            // see if user already exists
+            var preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE username=?");
+            preparedStatement.setString(1, userData.username());
+            try (var rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    throw new DataAccessException("Error: already taken", 403);
+                }
+            }
+            // insert user
+            try (var preparedStatement2 = conn.prepareStatement(
+                    "INSERT INTO user (username, password, email) VALUES(?, ?, ?)")) {
+                preparedStatement2.setString(1, userData.username());
+                preparedStatement2.setString(2, userData.password());
+                preparedStatement2.setString(3, userData.email());
+
+                preparedStatement2.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
+
+        return userData;
     }
 
     public AuthData createAuth(AuthData authData) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement2 = conn.prepareStatement(
+                    "INSERT INTO auth (token, username) VALUES(?, ?)")) {
+                preparedStatement2.setString(1, authData.authToken());
+                preparedStatement2.setString(2, authData.username());
+                preparedStatement2.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
+        return authData;
     }
 
     public boolean checkUser(UserData userData) throws DataAccessException {
-        return false;
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE (username, password)=(?,?)");
+            preparedStatement.setString(1, userData.username());
+            preparedStatement.setString(2, userData.password());
+            try (var rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new DataAccessException("Error: unauthorized", 401);
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
+        return true;
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
