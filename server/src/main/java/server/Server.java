@@ -13,6 +13,7 @@ import service.UserService;
 import spark.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class Server {
@@ -136,7 +137,7 @@ public class Server {
     private Object clear(Request req, Response res) throws DataAccessException {
         try {
             clearService.deleteDB();
-            return "";
+            return new Gson().toJson(Collections.singletonMap("Result", "Success"));
         } catch (DataAccessException e) {
             return exceptionParser(e, res);
         }

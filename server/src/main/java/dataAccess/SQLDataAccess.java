@@ -72,11 +72,29 @@ public class SQLDataAccess implements DataAccess {
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement("DELETE FROM auth WHERE token=?");
+            preparedStatement.setString(1, authToken);
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
     }
 
     public AuthData checkAuth(String authToken) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement("SELECT * FROM auth WHERE token=?");
+            preparedStatement.setString(1, authToken);
+            try (var rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new DataAccessException("Error: unauthorized", 401);
+                } else {
+                    return new AuthData(rs.getString("token"), rs.getString("username"));
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
     }
 
     public HashMap<Integer, GameData> getGames() throws DataAccessException {
