@@ -4,7 +4,6 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -26,21 +25,20 @@ public class MemoryDataAccess implements DataAccess{
         return userData;
     }
 
-    public AuthData createAuth(AuthData authData) throws DataAccessException {
+    public AuthData createAuth(AuthData authData) {
         authData = new AuthData(authData.authToken(), authData.username());
         authTokens.put(authData.authToken(), authData);
         return authData;
     }
 
-    public boolean checkUser(UserData userData) throws DataAccessException {
+    public void checkUser(UserData userData) throws DataAccessException {
         UserData record = users.get(userData.username());
         if (record == null || !Objects.equals(userData.password(), record.password())) {
             throw new DataAccessException("Error: unauthorized", 401);
         }
-        return true;
     }
 
-    public void deleteAuth(String authToken) throws DataAccessException {
+    public void deleteAuth(String authToken) {
         authTokens.remove(authToken);
     }
 
@@ -51,7 +49,7 @@ public class MemoryDataAccess implements DataAccess{
         return authTokens.get(authToken);
     }
 
-    public HashMap<Integer, GameData> getGames() throws DataAccessException {
+    public HashMap<Integer, GameData> getGames() {
         return games;
     }
 
@@ -82,13 +80,10 @@ public class MemoryDataAccess implements DataAccess{
             }
             games.put(game.gameID(),
                     new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
-        } else {
-            // add as observer
-            return;
         }
     }
 
-    public void deleteDB() throws DataAccessException {
+    public void deleteDB() {
         users.clear();
         games.clear();
         authTokens.clear();

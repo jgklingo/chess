@@ -88,24 +88,12 @@ public class ChessPiece {
     public String toString() {
         String str = "";
         switch (this.getPieceType()) {
-            case BISHOP -> {
-                str = "b";
-            }
-            case ROOK -> {
-                str = "r";
-            }
-            case QUEEN -> {
-                str = "q";
-            }
-            case KING -> {
-                str = "k";
-            }
-            case KNIGHT -> {
-                str = "n";
-            }
-            case PAWN -> {
-                str = "p";
-            }
+            case BISHOP -> str = "b";
+            case ROOK -> str = "r";
+            case QUEEN -> str = "q";
+            case KING -> str = "k";
+            case KNIGHT -> str = "n";
+            case PAWN -> str = "p";
         }
         if (this.getTeamColor() == ChessGame.TeamColor.BLACK) {
             return str;

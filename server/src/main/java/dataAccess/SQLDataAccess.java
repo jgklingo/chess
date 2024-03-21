@@ -9,7 +9,6 @@ import model.UserData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -61,7 +60,7 @@ public class SQLDataAccess implements DataAccess {
         return authData;
     }
 
-    public boolean checkUser(UserData userData) throws DataAccessException {
+    public void checkUser(UserData userData) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE (username, password)=(?,?)");
             preparedStatement.setString(1, userData.username());
@@ -74,7 +73,6 @@ public class SQLDataAccess implements DataAccess {
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage(), 500);
         }
-        return true;
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
@@ -164,7 +162,7 @@ public class SQLDataAccess implements DataAccess {
                 }
             }
             // add user
-            PreparedStatement preparedStatement2 = null;
+            PreparedStatement preparedStatement2;
             if (Objects.equals(playerColor, "WHITE")) {
                 preparedStatement2 = conn.prepareStatement("UPDATE game SET whiteUsername=? WHERE ID=?");
             } else if (Objects.equals(playerColor, "BLACK")) {

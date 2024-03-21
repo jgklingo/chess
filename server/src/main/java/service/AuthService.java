@@ -21,11 +21,8 @@ public class AuthService {
 
     public AuthData login(UserData userData) throws DataAccessException {
         AuthData authData;
-        if (dataAccess.checkUser(userData)) {
-            authData = createAuth(userData);
-        } else {
-            throw new DataAccessException("Error: unauthorized", 401);
-        }
+        dataAccess.checkUser(userData);
+        authData = createAuth(userData);
         return authData;
     }
 

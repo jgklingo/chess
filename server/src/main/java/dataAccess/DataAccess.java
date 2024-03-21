@@ -9,7 +9,7 @@ import java.util.HashMap;
 public interface DataAccess {
     UserData createUser(UserData userData) throws DataAccessException;
     AuthData createAuth(AuthData authData) throws DataAccessException;
-    boolean checkUser(UserData userData) throws DataAccessException;
+    void checkUser(UserData userData) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
     AuthData checkAuth(String authToken) throws DataAccessException;
     HashMap<Integer, GameData> getGames() throws DataAccessException;

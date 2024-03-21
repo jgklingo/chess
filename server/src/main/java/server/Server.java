@@ -3,7 +3,6 @@ package server;
 import com.google.gson.Gson;
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryDataAccess;
 import dataAccess.SQLDataAccess;
 import model.*;
 import service.AuthService;
@@ -58,7 +57,7 @@ public class Server {
         res.status(ex.statusCode());
     }
 
-    private Object register(Request req, Response res) throws DataAccessException {
+    private Object register(Request req, Response res) {
         try {
             var userData = new Gson().fromJson(req.body(), UserData.class);
             userData = userService.register(userData);
@@ -69,7 +68,7 @@ public class Server {
         }
     }
 
-    private Object login(Request req, Response res) throws DataAccessException {
+    private Object login(Request req, Response res) {
         try {
             var userData = new Gson().fromJson(req.body(), UserData.class);
             AuthData authData = authService.login(userData);
@@ -79,7 +78,7 @@ public class Server {
         }
     }
 
-    private Object logout(Request req, Response res) throws DataAccessException {
+    private Object logout(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             authService.checkAuth(authToken);
@@ -90,7 +89,7 @@ public class Server {
         }
     }
 
-    private Object listGames(Request req, Response res) throws DataAccessException {
+    private Object listGames(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             authService.checkAuth(authToken);
@@ -107,11 +106,11 @@ public class Server {
         }
     }
 
-    private Object createGame(Request req, Response res) throws DataAccessException {
+    private Object createGame(Request req, Response res) {
         try {
             var name = (String) new Gson().fromJson(req.body(), HashMap.class).get("gameName");
             String authToken = req.headers("authorization");
-            AuthData authData = authService.checkAuth(authToken);
+            authService.checkAuth(authToken);
             GameData gameData = gameService.createGame(name);
             return new Gson().toJson(gameData);
         } catch (DataAccessException e) {
@@ -119,7 +118,7 @@ public class Server {
         }
     }
 
-    private Object joinGame(Request req, Response res) throws DataAccessException {
+    private Object joinGame(Request req, Response res) {
         try {
             String authToken = req.headers("authorization");
             var requestBody = new Gson().fromJson(req.body(), HashMap.class);
@@ -133,7 +132,7 @@ public class Server {
         return "";
     }
 
-    private Object clear(Request req, Response res) throws DataAccessException {
+    private Object clear(Request req, Response res) {
         try {
             clearService.deleteDB();
             return new Gson().toJson(Collections.singletonMap("Result", "Success"));
