@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class SQLDataAccess implements DataAccess {
 
@@ -156,17 +157,17 @@ public class SQLDataAccess implements DataAccess {
                     // check if spot is taken
                     var whiteUsername = rs.getString("whiteUsername");
                     var blackUsername = rs.getString("blackUsername");
-                    if ((playerColor.equals("BLACK") && blackUsername != null)
-                            || (playerColor.equals("WHITE") && whiteUsername != null)) {
+                    if ((Objects.equals(playerColor, "BLACK") && blackUsername != null)
+                            || (Objects.equals(playerColor, "WHITE") && whiteUsername != null)) {
                         throw new DataAccessException("Error: already taken", 403);
                     }
                 }
             }
             // add user
             PreparedStatement preparedStatement2 = null;
-            if (playerColor.equals("WHITE")) {
+            if (Objects.equals(playerColor, "WHITE")) {
                 preparedStatement2 = conn.prepareStatement("UPDATE game SET whiteUsername=? WHERE ID=?");
-            } else if (playerColor.equals("BLACK")) {
+            } else if (Objects.equals(playerColor, "BLACK")) {
                 preparedStatement2 = conn.prepareStatement("UPDATE game SET blackUsername=? WHERE ID=?");
             } else {
                 // add as observer
