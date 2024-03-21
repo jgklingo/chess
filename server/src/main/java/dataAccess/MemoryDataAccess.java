@@ -70,10 +70,7 @@ public class MemoryDataAccess implements DataAccess{
         if (game == null) {
             throw new DataAccessException("Error: bad request", 400);
         }
-        if (playerColor == null || playerColor.isBlank()) {
-            // add as observer
-        }
-        else if (playerColor.equals("BLACK")) {
+        if (playerColor.equals("BLACK")) {
             if (game.blackUsername() != null) {
                 throw new DataAccessException("Error: already taken", 403);
             }
@@ -85,6 +82,9 @@ public class MemoryDataAccess implements DataAccess{
             }
             games.put(game.gameID(),
                     new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game()));
+        } else {
+            // add as observer
+            return;
         }
     }
 

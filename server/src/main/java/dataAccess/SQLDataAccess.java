@@ -6,7 +6,10 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class SQLDataAccess implements DataAccess {
@@ -110,7 +113,7 @@ public class SQLDataAccess implements DataAccess {
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var game = rs.getString("json");
-                        games.put(id, new GameData(id, whiteUsername, blackUsername, gameName, new Gson().fromJson(game, ChessGame.class)));
+                        games.put(id, new GameData(id, whiteUsername, blackUsername, gameName, new Gson().fromJson(game, ChessGame.class)));  // TODO: fix this?
                     }
                 }
             }
@@ -121,11 +124,60 @@ public class SQLDataAccess implements DataAccess {
     }
 
     public GameData newGame(String name) throws DataAccessException {
-        return null;
+        if (name == null || name.isEmpty()) {
+            throw new DataAccessException("Error: bad request", 400);
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO game (gameName) VALUES(?)", Statement.RETURN_GENERATED_KEYS)) {
+                preparedStatement.setString(1, name);
+                preparedStatement.executeUpdate();
+
+                var resultSet = preparedStatement.getGeneratedKeys();
+                var ID = 0;
+                if (resultSet.next()) {
+                    ID = resultSet.getInt(1);
+                }
+                return new GameData(ID, null, null, name, null);
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
     }
 
     public void addPlayer(String username, String playerColor, Integer gameID) throws DataAccessException {
-
+        try (var conn = DatabaseManager.getConnection()) {
+            // check if game exists
+            var preparedStatement = conn.prepareStatement("SELECT * FROM game WHERE ID=?");
+            preparedStatement.setInt(1, gameID);
+            try (var rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new DataAccessException("Error: bad request", 400);
+                } else {
+                    // check if spot is taken
+                    var whiteUsername = rs.getString("whiteUsername");
+                    var blackUsername = rs.getString("blackUsername");
+                    if ((playerColor.equals("BLACK") && blackUsername != null)
+                            || (playerColor.equals("WHITE") && whiteUsername != null)) {
+                        throw new DataAccessException("Error: already taken", 403);
+                    }
+                }
+            }
+            // add user
+            PreparedStatement preparedStatement2 = null;
+            if (playerColor.equals("WHITE")) {
+                preparedStatement2 = conn.prepareStatement("UPDATE game SET whiteUsername=? WHERE ID=?");
+            } else if (playerColor.equals("BLACK")) {
+                preparedStatement2 = conn.prepareStatement("UPDATE game SET blackUsername=? WHERE ID=?");
+            } else {
+                // add as observer
+                return;
+            }
+            preparedStatement2.setString(1, username);
+            preparedStatement2.setInt(2, gameID);
+            preparedStatement2.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
     }
 
     public void deleteDB() throws DataAccessException {
@@ -154,11 +206,11 @@ public class SQLDataAccess implements DataAccess {
             """,
             """
             CREATE TABLE IF NOT EXISTS  game (
-                ID int NOT NULL,
+                ID int NOT NULL AUTO_INCREMENT,
                 whiteUsername varchar(256),
                 blackUsername varchar(256),
                 gameName varchar(256) NOT NULL,
-                json longtext NOT NULL,
+                json longtext,
                 PRIMARY KEY (ID)
             );
             """,
