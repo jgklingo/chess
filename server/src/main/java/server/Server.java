@@ -4,11 +4,12 @@ import com.google.gson.Gson;
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDataAccess;
+import dataAccess.SQLDataAccess;
 import model.*;
 import service.AuthService;
 import service.ClearService;
 import service.GameService;
-import service.RegistrationService;
+import service.UserService;
 import spark.*;
 
 import java.util.ArrayList;
@@ -18,14 +19,20 @@ public class Server {
     private final AuthService authService;
     private final ClearService clearService;
     private final GameService gameService;
-    private final RegistrationService registrationService;
+    private final UserService userService;
 
     public Server() {
-        DataAccess dataAccess = new MemoryDataAccess();
+        DataAccess dataAccess;
+        try {
+            dataAccess = new SQLDataAccess();
+        } catch (Throwable ex) {
+            throw new RuntimeException("SQL database failed to initialize");
+        }
+
         this.authService = new AuthService(dataAccess);
         this.clearService = new ClearService(dataAccess);
         this.gameService = new GameService(dataAccess);
-        this.registrationService = new RegistrationService(dataAccess);
+        this.userService = new UserService(dataAccess);
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -53,7 +60,7 @@ public class Server {
     private Object register(Request req, Response res) throws DataAccessException {
         try {
             var userData = new Gson().fromJson(req.body(), UserData.class);
-            userData = registrationService.register(userData);
+            userData = userService.register(userData);
             AuthData authData = authService.createAuth(userData);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {

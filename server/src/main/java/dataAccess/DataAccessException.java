@@ -3,7 +3,7 @@ package dataAccess;
 /**
  * Indicates there was an error connecting to the database
  */
-public class DataAccessException extends Exception{
+public class DataAccessException extends Exception {
     private final Integer statusCode;
 
     public DataAccessException(String message) {

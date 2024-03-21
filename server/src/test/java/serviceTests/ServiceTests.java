@@ -8,7 +8,7 @@ import org.junit.jupiter.api.*;
 import service.AuthService;
 import service.ClearService;
 import service.GameService;
-import service.RegistrationService;
+import service.UserService;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ public class ServiceTests {
     private static final AuthService authService = new AuthService(dataAccess);
     private static final ClearService clearService = new ClearService(dataAccess);
     private static final GameService gameService = new GameService(dataAccess);
-    private static final RegistrationService registrationService = new RegistrationService(dataAccess);
+    private static final UserService userService = new UserService(dataAccess);
 
     String existingUserUsername = "ExistingUser";
     String existingUserPassword = "existingUserPassword";
@@ -37,7 +37,7 @@ public class ServiceTests {
     @Test
     @DisplayName("register() Success")
     public void registerSuccess() throws DataAccessException {
-        var userData = registrationService.register(new UserData(existingUserUsername, existingUserPassword, existingUserEmail));
+        var userData = userService.register(new UserData(existingUserUsername, existingUserPassword, existingUserEmail));
         assert Objects.equals(userData.username(), existingUserUsername)
                 && userData.password().equals(existingUserPassword)
                 && userData.email().equals(existingUserEmail);
@@ -47,8 +47,8 @@ public class ServiceTests {
     @DisplayName("register() Fail")
     public void registerFail() throws DataAccessException {
         try {
-            registrationService.register(new UserData(existingUserUsername, existingUserPassword, existingUserEmail));
-            registrationService.register(new UserData(existingUserUsername, existingUserPassword, existingUserEmail));
+            userService.register(new UserData(existingUserUsername, existingUserPassword, existingUserEmail));
+            userService.register(new UserData(existingUserUsername, existingUserPassword, existingUserEmail));
             assert false;
         } catch (DataAccessException e) {
             assert e.statusCode() == 403;
