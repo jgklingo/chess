@@ -1,5 +1,7 @@
 package dataAccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -98,7 +100,24 @@ public class SQLDataAccess implements DataAccess {
     }
 
     public HashMap<Integer, GameData> getGames() throws DataAccessException {
-        return null;
+        HashMap<Integer, GameData> games = new HashMap<>();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM game")) {
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        var id = rs.getInt("ID");
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        var game = rs.getString("json");
+                        games.put(id, new GameData(id, whiteUsername, blackUsername, gameName, new Gson().fromJson(game, ChessGame.class)));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
+        return games;
     }
 
     public GameData newGame(String name) throws DataAccessException {

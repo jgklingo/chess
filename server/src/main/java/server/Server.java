@@ -27,7 +27,7 @@ public class Server {
         try {
             dataAccess = new SQLDataAccess();
         } catch (Throwable ex) {
-            throw new RuntimeException("SQL database failed to initialize");
+            throw new RuntimeException(STR."SQL database failed to initialize: \{ex.getMessage()}");
         }
 
         this.authService = new AuthService(dataAccess);
@@ -127,7 +127,6 @@ public class Server {
             var gameID = (Double) requestBody.get("gameID");
             AuthData authData = authService.checkAuth(authToken);
             gameService.joinGame(authData.username(), playerColor, gameID.intValue());
-//        var name = new Gson().fromJson(req.body(), String.class);
         } catch (DataAccessException e) {
             return exceptionParser(e, res);
         }
