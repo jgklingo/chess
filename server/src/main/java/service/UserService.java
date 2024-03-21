@@ -2,13 +2,12 @@ package service;
 
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
-import model.AuthData;
 import model.UserData;
 
-public class RegistrationService {
+public class UserService {
     private final DataAccess dataAccess;
 
-    public RegistrationService(DataAccess dataAccess) {
+    public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
     public UserData register(UserData userData) throws DataAccessException {
