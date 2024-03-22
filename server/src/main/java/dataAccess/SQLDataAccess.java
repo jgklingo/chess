@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,8 +34,9 @@ public class SQLDataAccess implements DataAccess {
             // insert user
             try (var preparedStatement2 = conn.prepareStatement(
                     "INSERT INTO user (username, password, email) VALUES(?, ?, ?)")) {
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                 preparedStatement2.setString(1, userData.username());
-                preparedStatement2.setString(2, userData.password());
+                preparedStatement2.setString(2, encoder.encode(userData.password()));
                 preparedStatement2.setString(3, userData.email());
 
                 preparedStatement2.executeUpdate();
@@ -62,11 +64,15 @@ public class SQLDataAccess implements DataAccess {
 
     public void checkUser(UserData userData) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE (username, password)=(?,?)");
+            var preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE username=? LIMIT 1");
             preparedStatement.setString(1, userData.username());
-            preparedStatement.setString(2, userData.password());
             try (var rs = preparedStatement.executeQuery()) {
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                 if (!rs.next()) {
+                    throw new DataAccessException("Error: unauthorized", 401);
+                }
+                var password = rs.getString("password");
+                if (!encoder.matches(userData.password(), password)) {
                     throw new DataAccessException("Error: unauthorized", 401);
                 }
             }
