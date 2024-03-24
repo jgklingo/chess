@@ -1,4 +1,4 @@
-package chess.PieceMoveCalculators;
+package chess.pieceMoveCalculators;
 
 import chess.ChessBoard;
 import chess.ChessGame;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class PieceMoveCalculator {
     public static ArrayList<ChessMove> diagonal(ChessBoard board, ChessPosition piecePosition) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> moves = new ArrayList<>();
         ChessPosition currentPosition;
 
         currentPosition = piecePosition.tr();
@@ -40,7 +40,7 @@ public class PieceMoveCalculator {
         return moves;
     }
     public static ArrayList<ChessMove> vertical(ChessBoard board, ChessPosition piecePosition) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> moves = new ArrayList<>();
         ChessPosition currentPosition;
 
         currentPosition = piecePosition.t();
@@ -77,7 +77,7 @@ public class PieceMoveCalculator {
     }
     public static ArrayList<ChessMove> capture(ChessBoard board, ChessPosition startPosition, ChessPosition endPosition,
                                                ChessGame.TeamColor color) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> moves = new ArrayList<>();
         if (endPosition.getColumn() > 0 && endPosition.getColumn() < 9 && endPosition.getRow() > 0 &&
                 endPosition.getRow() < 9 && board.getPiece(endPosition) != null &&
                 board.getPiece(endPosition).getTeamColor() != color) {

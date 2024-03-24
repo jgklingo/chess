@@ -95,12 +95,11 @@ public class Server {
             authService.checkAuth(authToken);
             var games = gameService.listGames();
 
-            var gameListJSON = new HashMap<String, ArrayList<GameData>>();
-            gameListJSON.put("games", new ArrayList<>());
-            gameListJSON.get("games").addAll(games.values());
+            var gameListJson = new HashMap<String, ArrayList<GameData>>();
+            gameListJson.put("games", new ArrayList<>());
+            gameListJson.get("games").addAll(games.values());
 
-            return new Gson().toJson(gameListJSON);
-//            return "{\"test\": \"foo bar\"}";
+            return new Gson().toJson(gameListJson);
         } catch (DataAccessException e) {
             return exceptionParser(e, res);
         }
