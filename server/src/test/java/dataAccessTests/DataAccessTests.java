@@ -77,6 +77,50 @@ public class DataAccessTests {
         }
     }
     @Test
+    @DisplayName("checkUser() Success")
+    public void checkUserSuccess() {
+        try {
+            sqlDataAccess.createUser(existingUserData);
+            sqlDataAccess.checkUser(existingUserData);
+            assert true;
+        } catch (Throwable ex) {
+            assert false;
+        }
+    }
+    @Test
+    @DisplayName("checkUser() Failure")
+    public void checkUserFailure() {
+        try {
+            sqlDataAccess.checkUser(new UserData("hacker", "hackersdontusepasswords", "hacker@mail.ru"));
+            assert false;
+        } catch (DataAccessException ex) {
+            assert ex.statusCode() == 401;
+        }
+    }
+    @Test
+    @DisplayName("deleteAuth Success")
+    public void deleteAuthSuccess() {
+        try {
+            sqlDataAccess.createAuth(new AuthData("supersecuretoken", "tester"));
+            sqlDataAccess.deleteAuth("supersecuretoken");
+            assert true;
+        } catch (Throwable ex) {
+            assert false;
+        }
+    }
+    @Test
+    @DisplayName("deleteAuth Failure")
+    public void deleteAuthFailure() {
+        try {
+            sqlDataAccess.createAuth(new AuthData("supersecuretoken", "tester"));
+            sqlDataAccess.checkAuth("someothertoken");
+            sqlDataAccess.deleteAuth("someothertoken");
+            assert false;
+        } catch (DataAccessException ex) {
+            assert ex.statusCode() == 401;
+        }
+    }
+    @Test
     @DisplayName("checkAuth() Success")
     public void checkAuthSuccess() {
         try {
