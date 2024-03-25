@@ -26,7 +26,7 @@ public class Server {
         try {
             dataAccess = new SQLDataAccess();
         } catch (Throwable ex) {
-            throw new RuntimeException(STR."SQL database failed to initialize: \{ex.getMessage()}");
+            throw new RuntimeException("SQL database failed to initialize: %s".formatted(ex.getMessage()));
         }
 
         this.authService = new AuthService(dataAccess);
