@@ -23,7 +23,7 @@ public class DataAccessTests {
         try {
             sqlDataAccess = new SQLDataAccess();
         } catch (Throwable ex) {
-            throw new RuntimeException(STR."SQL database failed to initialize: \{ex.getMessage()}");
+            throw new RuntimeException("SQL database failed to initialize: %s".formatted(ex.getMessage()));
         }
         sqlDataAccess.deleteDB();
     }
@@ -39,7 +39,7 @@ public class DataAccessTests {
             sqlDataAccess.createUser(existingUserData);
             sqlDataAccess.checkUser(existingUserData);
             assert true;
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
