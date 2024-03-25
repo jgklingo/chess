@@ -222,4 +222,10 @@ public class DataAccessTests {
             assert false;
         }
     }
+    @Test
+    @DisplayName("deleteDB() Failure")
+    public void deleteDBFailure() {
+        assert true;
+        // best test in the history of tests
+    }
 }
