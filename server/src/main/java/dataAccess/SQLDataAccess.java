@@ -232,7 +232,6 @@ public class SQLDataAccess implements DataAccess {
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
 
             for (var statement : createStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
