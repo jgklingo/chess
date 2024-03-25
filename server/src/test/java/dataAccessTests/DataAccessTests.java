@@ -61,7 +61,7 @@ public class DataAccessTests {
             sqlDataAccess.createAuth(testAuthData);
             sqlDataAccess.checkAuth(testAuthData.authToken());
             assert true;
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
@@ -83,7 +83,7 @@ public class DataAccessTests {
             sqlDataAccess.createAuth(testAuthData);
             sqlDataAccess.checkAuth(testAuthData.authToken());
             assert true;
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
@@ -105,7 +105,7 @@ public class DataAccessTests {
             sqlDataAccess.newGame("game2");
             sqlDataAccess.newGame("game3");
             assert sqlDataAccess.getGames().size() == 3;
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
@@ -128,7 +128,7 @@ public class DataAccessTests {
             sqlDataAccess.newGame("game3");
             var result = sqlDataAccess.getGames();
             assert Objects.equals(result.keySet(), Set.of(1, 2, 3));
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
@@ -150,7 +150,7 @@ public class DataAccessTests {
             sqlDataAccess.addPlayer("tester", "BLACK", 1);
             var result = sqlDataAccess.getGames();
             assert result.get(1).blackUsername().equals("tester");
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
@@ -174,7 +174,7 @@ public class DataAccessTests {
             assert sqlDataAccess.getGames().size() == 1;
             sqlDataAccess.deleteDB();
             assert sqlDataAccess.getGames().isEmpty();
-        } catch (Throwable _) {
+        } catch (Throwable ex) {
             assert false;
         }
     }
