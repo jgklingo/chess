@@ -13,6 +13,7 @@ public class EscapeSequences {
 
     public static final String SET_TEXT_BOLD = UNICODE_ESCAPE + "[1m";
     public static final String SET_TEXT_FAINT = UNICODE_ESCAPE + "[2m";
+    public static final String RESET_TEXT_BOLD = UNICODE_ESCAPE + "[0m";
     public static final String RESET_TEXT_BOLD_FAINT = UNICODE_ESCAPE + "[22m";
     public static final String SET_TEXT_ITALIC = UNICODE_ESCAPE + "[3m";
     public static final String RESET_TEXT_ITALIC = UNICODE_ESCAPE + "[23m";
