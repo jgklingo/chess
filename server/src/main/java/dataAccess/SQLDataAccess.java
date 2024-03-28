@@ -150,6 +150,9 @@ public class SQLDataAccess implements DataAccess {
     }
 
     public void addPlayer(String username, String playerColor, Integer gameID) throws DataAccessException {
+        if (playerColor != null) {
+            playerColor = playerColor.toUpperCase();
+        }
         try (var conn = DatabaseManager.getConnection()) {
             // check if game exists
             var preparedStatement = conn.prepareStatement("SELECT * FROM game WHERE ID=?");

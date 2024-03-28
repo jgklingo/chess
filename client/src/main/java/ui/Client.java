@@ -2,9 +2,11 @@ package ui;
 
 import exception.ResponseException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import server.ServerFacade;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Client {
@@ -19,28 +21,27 @@ public class Client {
         this.repl = repl;
     }
 
-    public String eval(String input) {
-        try {
-            var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            if (!signedIn) {
-                return switch (cmd) {
-                    case "login" -> login();
-                    case "register" -> register();
-                    case "quit" -> "";
-                    default -> help();
-                };
-            } else {
-                return switch (cmd) {
-                    case "logout" -> logout();
-                    case "creategame" -> createGame(params);
-                    case "quit" -> "";
-                    default -> help();
-                };
-            }
-        } catch (Throwable ex) {
-            return ex.getMessage();
+    public String eval(String input) throws ResponseException {
+        var tokens = input.toLowerCase().split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        if (!signedIn) {
+            return switch (cmd) {
+                case "login" -> login();
+                case "register" -> register();
+                case "quit" -> "";
+                default -> help();
+            };
+        } else {
+            return switch (cmd) {
+                case "logout" -> logout();
+                case "creategame" -> createGame(params);
+                case "listgames" -> listGames();
+                case "joingame" -> joinGame(params);
+                case "joinobserver" -> joinObserver(params);
+                case "quit" -> "";
+                default -> help();
+            };
         }
     }
     private String register() throws ResponseException {
@@ -68,7 +69,20 @@ public class Client {
         server.createGame(authToken, gameName);
         return "Game created.\n";
     }
-
+    private String listGames() throws ResponseException {
+        return server.listGames(authToken).toString() + "\n";
+    }
+    private String joinGame(String[] params) throws ResponseException {
+        String playerColor = params[0];
+        String gameID = params[1];
+        server.joinGame(authToken, playerColor, Integer.parseInt(gameID));
+        return "Successful join as player.\n";
+    }
+    private String joinObserver(String[] params) throws ResponseException {
+        String gameID = params[0];
+        server.joinGame(authToken, null, Integer.parseInt(gameID));
+        return "Successful join as observer.\n";
+    }
     public String help() {
         if (!signedIn) {
             return """
@@ -81,10 +95,10 @@ public class Client {
             return """
                     - help (see help text)
                     - logout (end session)
-                    - createGame (create a new game)
+                    - createGame <gameName> (create a new game)
                     - listGames (list all games on the server)
-                    - joinGame (join an existing game as a player)
-                    - joinObserver (join an existing game as an observer)
+                    - joinGame <playerColor> <gameID> (join an existing game as a player)
+                    - joinObserver <gameID> (join an existing game as an observer)
                     - quit (close the client)
                     """;
         }

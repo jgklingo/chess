@@ -25,8 +25,8 @@ public class Repl {
                 result = client.eval(line);
                 System.out.print(SET_TEXT_COLOR_WHITE + result);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(SET_TEXT_COLOR_RED + msg + SET_TEXT_COLOR_WHITE);  // set color to red for errors
+                var msg = e.getMessage();
+                System.out.print(SET_TEXT_COLOR_RED + msg + SET_TEXT_COLOR_WHITE + "\n");  // set color to red for errors
             }
         }
         System.out.print("quitting...");
