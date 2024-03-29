@@ -3,11 +3,13 @@ package ui;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
+import model.GameDataList;
 import model.UserData;
 import server.ServerFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Client {
     private final String serverUrl;
@@ -15,6 +17,8 @@ public class Client {
     private final ServerFacade server;
     private boolean signedIn = false;
     private String authToken = null;
+    private HashMap<Integer, Integer> gameListMapping;
+
     public Client(String serverUrl, Repl repl) {
         this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
@@ -33,6 +37,7 @@ public class Client {
                 default -> help();
             };
         } else {
+            gameListMapping = mapGames();
             return switch (cmd) {
                 case "logout" -> logout();
                 case "creategame" -> createGame(params);
@@ -48,7 +53,9 @@ public class Client {
         String username = repl.prompt("Username: ");
         String password = repl.prompt("Password: ");
         String email = repl.prompt("Email: ");
-        server.register(new UserData(username, password, email));
+        AuthData authData = server.register(new UserData(username, password, email));
+        authToken = authData.authToken();
+        signedIn = true;
         return "User registered.\n";
     }
     private String login() throws ResponseException {
@@ -70,17 +77,34 @@ public class Client {
         return "Game created.\n";
     }
     private String listGames() throws ResponseException {
-        return server.listGames(authToken).toString() + "\n";
+        ArrayList<GameData> games = server.listGames(authToken);
+        StringBuilder gameListString = new StringBuilder();
+        for (GameData game : games) {
+            gameListString.append(gameListMapping.get(game.gameID())).append(". ");
+            gameListString.append("Game Name: %s, ".formatted(game.gameName()));
+            gameListString.append("White Player: %s, ".formatted(game.whiteUsername()));
+            gameListString.append("Black Player: %s".formatted(game.blackUsername()));
+            gameListString.append("\n");
+        }
+        return gameListString.toString();
     }
     private String joinGame(String[] params) throws ResponseException {
         String playerColor = params[0];
-        String gameID = params[1];
-        server.joinGame(authToken, playerColor, Integer.parseInt(gameID));
+        String gameNumber = params[1];
+        Integer gameID = -1;
+        if (gameListMapping.get(Integer.parseInt(gameNumber)) != null) {
+            gameID = gameListMapping.get(Integer.parseInt(gameNumber));
+        }
+        server.joinGame(authToken, playerColor, gameID);
         return "Successful join as player.\n";
     }
     private String joinObserver(String[] params) throws ResponseException {
-        String gameID = params[0];
-        server.joinGame(authToken, null, Integer.parseInt(gameID));
+        String gameNumber = params[0];
+        Integer gameID = -1;
+        if (gameListMapping.get(Integer.parseInt(gameNumber)) != null) {
+            gameID = gameListMapping.get(Integer.parseInt(gameNumber));
+        }
+        server.joinGame(authToken, null, gameID);
         return "Successful join as observer.\n";
     }
     public String help() {
@@ -97,10 +121,19 @@ public class Client {
                     - logout (end session)
                     - createGame <gameName> (create a new game)
                     - listGames (list all games on the server)
-                    - joinGame <playerColor> <gameID> (join an existing game as a player)
-                    - joinObserver <gameID> (join an existing game as an observer)
+                    - joinGame <playerColor> <gameNumber> (join an existing game as a player)
+                    - joinObserver <gameNumber> (join an existing game as an observer)
                     - quit (close the client)
                     """;
         }
+    }
+    private HashMap<Integer, Integer> mapGames() throws ResponseException {
+        HashMap<Integer, Integer> mapping = new HashMap<>();
+        ArrayList<GameData> games = server.listGames(authToken);
+        int num = 1;
+        for (GameData game : games) {
+            mapping.put(num++, game.gameID());
+        }
+        return mapping;
     }
 }
