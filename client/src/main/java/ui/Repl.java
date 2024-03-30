@@ -12,8 +12,8 @@ public class Repl {
         client = new Client(serverUrl, this);
     }
     public void run() {
-
-        System.out.println(SET_TEXT_BOLD + "Welcome to 240 Chess! Use one of the following commands to get started:" + RESET_TEXT_BOLD);
+        System.out.println(SET_TEXT_BOLD + "Welcome to 240 Chess! Use one of the following commands to get started:"
+                + RESET_TEXT_BOLD);
         System.out.print(client.help());
 
         String result = null;

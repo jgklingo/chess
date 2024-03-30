@@ -81,6 +81,9 @@ public class Client {
     }
     private String listGames() throws ResponseException {
         ArrayList<GameData> games = server.listGames(authToken);
+        if (games.isEmpty()) {
+            return "No games found.\n";
+        }
         StringBuilder gameListString = new StringBuilder();
         for (GameData game : games) {
             gameListString.append(gameListMapping.get(game.gameID())).append(". ");
