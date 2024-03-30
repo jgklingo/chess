@@ -134,7 +134,7 @@ public class ServerFacadeTests {
     public void joinGameSuccess() {
         try {
             AuthData authData = serverFacade.register(testUserData);
-            GameData gameData = serverFacade.createGame(authData.authToken(), "test");
+            serverFacade.createGame(authData.authToken(), "test");
             serverFacade.joinGame(authData.authToken(), "WHITE", 1);
             assert !serverFacade.listGames(authData.authToken()).isEmpty();
         } catch (Throwable e) {

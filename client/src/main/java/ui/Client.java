@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
@@ -16,10 +17,12 @@ public class Client {
     private boolean signedIn = false;
     private String authToken = null;
     private HashMap<Integer, Integer> gameListMapping;
+    private final ChessBoard exampleBoard = new ChessBoard();
 
     public Client(String serverUrl, Repl repl) {
         server = new ServerFacade(serverUrl);
         this.repl = repl;
+        exampleBoard.resetBoard();
     }
 
     public String eval(String input) throws ResponseException {
@@ -95,7 +98,7 @@ public class Client {
         String playerColor = params[0];
         String gameNumber = params[1];
         server.joinGame(authToken, playerColor, getGameID(gameNumber));
-        return "Successful join as player.\n";
+        return "Successful join as player.\n" + printBoard(exampleBoard);
     }
     private String joinObserver(String[] params) throws ResponseException {
         if (params.length != 1) {
@@ -103,7 +106,7 @@ public class Client {
         }
         String gameNumber = params[0];
         server.joinGame(authToken, null, getGameID(gameNumber));
-        return "Successful join as observer.\n";
+        return "Successful join as observer.\n" + printBoard(exampleBoard);
     }
     public String help() {
         if (!signedIn) {
@@ -119,11 +122,15 @@ public class Client {
                     - logout (end session)
                     - createGame <gameName> (create a new game)
                     - listGames (list all games on the server)
-                    - joinGame <playerColor> <gameNumber> (join an existing game as a player)
+                    - joinGame [white|black] <gameNumber> (join an existing game as a player)
                     - joinObserver <gameNumber> (join an existing game as an observer)
                     - quit (close the client)
                     """;
         }
+    }
+    private String printBoard(ChessBoard chessBoard) {
+        BoardArtist boardArtist = new BoardArtist(chessBoard);
+        return boardArtist.drawReverseBoard() + "\n" + boardArtist.drawBoard();
     }
     private HashMap<Integer, Integer> mapGames() throws ResponseException {
         HashMap<Integer, Integer> mapping = new HashMap<>();
