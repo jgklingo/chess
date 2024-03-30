@@ -52,6 +52,9 @@ public class ServerFacade {
         request.put("gameID", gameID.toString());
         this.makeRequest("PUT", path, authToken, request, null);
     }
+    public void clear() throws ResponseException {
+        this.makeRequest("DELETE", "/db", null, null, null);
+    }
 
 
     private <T> T makeRequest(String method, String path, String authToken, Object request, Class<T> responseClass) throws ResponseException {

@@ -3,7 +3,6 @@ package ui;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
-import model.GameDataList;
 import model.UserData;
 import server.ServerFacade;
 
@@ -12,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Client {
-    private final String serverUrl;
     private final Repl repl;
     private final ServerFacade server;
     private boolean signedIn = false;
@@ -20,7 +18,6 @@ public class Client {
     private HashMap<Integer, Integer> gameListMapping;
 
     public Client(String serverUrl, Repl repl) {
-        this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
         this.repl = repl;
     }
