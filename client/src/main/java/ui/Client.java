@@ -72,6 +72,9 @@ public class Client {
         return "Logged out.\n";
     }
     private String createGame(String[] params) throws ResponseException {
+        if (params.length != 1) {
+            return help();
+        }
         String gameName = params[0];
         server.createGame(authToken, gameName);
         return "Game created.\n";
@@ -89,22 +92,20 @@ public class Client {
         return gameListString.toString();
     }
     private String joinGame(String[] params) throws ResponseException {
+        if (params.length != 2) {
+            return help();
+        }
         String playerColor = params[0];
         String gameNumber = params[1];
-        Integer gameID = -1;
-        if (gameListMapping.get(Integer.parseInt(gameNumber)) != null) {
-            gameID = gameListMapping.get(Integer.parseInt(gameNumber));
-        }
-        server.joinGame(authToken, playerColor, gameID);
+        server.joinGame(authToken, playerColor, getGameID(gameNumber));
         return "Successful join as player.\n";
     }
     private String joinObserver(String[] params) throws ResponseException {
-        String gameNumber = params[0];
-        Integer gameID = -1;
-        if (gameListMapping.get(Integer.parseInt(gameNumber)) != null) {
-            gameID = gameListMapping.get(Integer.parseInt(gameNumber));
+        if (params.length != 1) {
+            return help();
         }
-        server.joinGame(authToken, null, gameID);
+        String gameNumber = params[0];
+        server.joinGame(authToken, null, getGameID(gameNumber));
         return "Successful join as observer.\n";
     }
     public String help() {
@@ -135,5 +136,12 @@ public class Client {
             mapping.put(num++, game.gameID());
         }
         return mapping;
+    }
+    private Integer getGameID(String gameNumber) {
+        Integer gameID = -1;
+        if (gameListMapping.get(Integer.parseInt(gameNumber)) != null) {
+            gameID = gameListMapping.get(Integer.parseInt(gameNumber));
+        }
+        return gameID;
     }
 }

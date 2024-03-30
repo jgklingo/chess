@@ -67,7 +67,11 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            if (ex.getClass() != ResponseException.class) {
+                throw new ResponseException(500, ex.getMessage());
+            } else {
+                throw new ResponseException(((ResponseException) ex).StatusCode(), ex.getMessage());
+            }
         }
     }
     private static void writeAuthHeader(String authToken, HttpURLConnection http) {
@@ -86,8 +90,9 @@ public class ServerFacade {
     }
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
+        var message = http.getResponseMessage();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "failure: " + status);
+            throw new ResponseException(status, "failure: " + status + " - " + message);
         }
     }
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
