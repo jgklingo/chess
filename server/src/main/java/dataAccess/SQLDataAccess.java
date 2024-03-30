@@ -133,8 +133,9 @@ public class SQLDataAccess implements DataAccess {
             throw new DataAccessException("Error: bad request", 400);
         }
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("INSERT INTO game (gameName) VALUES(?)", Statement.RETURN_GENERATED_KEYS)) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO game (gameName, json) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, name);
+                preparedStatement.setString(2, new Gson().toJson(new ChessGame()));
                 preparedStatement.executeUpdate();
 
                 var resultSet = preparedStatement.getGeneratedKeys();

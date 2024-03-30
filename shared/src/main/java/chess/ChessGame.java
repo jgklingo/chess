@@ -10,10 +10,10 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-    ChessBoard board;
-    TeamColor currentTurn;
+    ChessBoard board = new ChessBoard();
+    TeamColor currentTurn = TeamColor.WHITE;
     public ChessGame() {
-
+        board.resetBoard();
     }
 
     /**
