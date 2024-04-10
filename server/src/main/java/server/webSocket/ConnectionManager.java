@@ -1,5 +1,6 @@
 package server.webSocket;
 
+import org.eclipse.jetty.util.IO;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import javax.websocket.Session;
@@ -16,11 +17,11 @@ public class ConnectionManager {
     public void remove(String username) {
         connections.remove(username);
     }
-    public void broadcast(String excludeVisitorName, ServerMessage serverMessage) throws IOException {
+    public void broadcast(String excludeUsername, ServerMessage serverMessage) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.username.equals(excludeVisitorName)) {
+                if (!c.username.equals(excludeUsername)) {
                     c.send(serverMessage.toString());
                 }
             } else {
@@ -31,5 +32,8 @@ public class ConnectionManager {
         for (var c : removeList) {
             connections.remove(c.username);
         }
+    }
+    public void whisper(String username, ServerMessage serverMessage) throws IOException {
+        connections.get(username).send(serverMessage.toString());
     }
 }

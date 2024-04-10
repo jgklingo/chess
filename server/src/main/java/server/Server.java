@@ -35,7 +35,7 @@ public class Server {
         this.clearService = new ClearService(dataAccess);
         this.gameService = new GameService(dataAccess);
         this.userService = new UserService(dataAccess);
-        this.webSocketHandler = new WebSocketHandler();
+        this.webSocketHandler = new WebSocketHandler(authService, clearService, gameService, userService);
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);

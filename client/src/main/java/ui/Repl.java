@@ -1,11 +1,15 @@
 package ui;
 
+import webSocket.ServerMessageHandler;
+import webSocketMessages.serverMessages.LoadGameMessage;
+import webSocketMessages.serverMessages.ServerMessage;
+
 import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl implements ServerMessageHandler {
     private final Client client;
     Scanner scanner = new Scanner(System.in);
     public Repl(String serverUrl) {
@@ -39,4 +43,10 @@ public class Repl {
         System.out.print(SET_TEXT_COLOR_WHITE + promptText + SET_TEXT_COLOR_GREEN);
         return scanner.nextLine();
     }
+
+    @Override
+    public void notify(ServerMessage serverMessage) {
+            System.out.println(SET_TEXT_COLOR_BLUE + serverMessage.message());
+            printPrompt();
+        }
 }

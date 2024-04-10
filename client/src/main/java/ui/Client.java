@@ -1,52 +1,83 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import server.ServerFacade;
+import webSocket.ServerMessageHandler;
+import webSocket.WebSocketFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Client {
-    private final Repl repl;
+    private final Repl repl;  // This IS the ServerMessageHandler/NotificationHandler
     private final ServerFacade server;
-    private boolean signedIn = false;
+    private WebSocketFacade ws;
+    private ClientState clientState = ClientState.SIGNED_OUT;
     private String authToken = null;
     private HashMap<Integer, Integer> gameListMapping;
-    private final ChessBoard exampleBoard = new ChessBoard();
+    protected ChessBoard currentBoard;
+
+    private enum ClientState {
+        SIGNED_IN, SIGNED_OUT, IN_GAME
+    }
 
     public Client(String serverUrl, Repl repl) {
-        server = new ServerFacade(serverUrl);
-        this.repl = repl;
-        exampleBoard.resetBoard();
+        try {
+            server = new ServerFacade(serverUrl);
+            ws = new WebSocketFacade(serverUrl, repl);
+            this.repl = repl;
+        } catch (Throwable e) {
+            throw new RuntimeException("Server or WebSocket Facade failed to start");
+        }
     }
 
     public String eval(String input) throws ResponseException {
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-        if (!signedIn) {
-            return switch (cmd) {
-                case "login" -> login();
-                case "register" -> register();
-                case "quit" -> "";
-                default -> help();
-            };
-        } else {
-            gameListMapping = mapGames();
-            return switch (cmd) {
-                case "logout" -> logout();
-                case "creategame" -> createGame(params);
-                case "listgames" -> listGames();
-                case "joingame" -> joinGame(params);
-                case "joinobserver" -> joinObserver(params);
-                case "quit" -> "";
-                default -> help();
-            };
+        switch (this.clientState) {
+            case SIGNED_OUT -> {
+                return switch (cmd) {
+                    case "login" -> login();
+                    case "register" -> register();
+                    case "quit" -> "";
+                    default -> help();
+                };
+            }
+            case SIGNED_IN -> {
+                gameListMapping = mapGames();
+                return switch (cmd) {
+                    case "logout" -> logout();
+                    case "creategame" -> createGame(params);
+                    case "listgames" -> listGames();
+                    case "joingame" -> joinGame(params);
+                    case "joinobserver" -> joinObserver(params);
+                    case "quit" -> "";
+                    default -> help();
+                };
+            }
+            case IN_GAME -> {
+                /*
+                    - help (see help text)
+                    - redrawBoard (redraw the chess board)
+                    - leave (leave the game)
+                    - makeMove (make a move)
+                    - resign (resign the game)
+                    - highlightMoves (see all legal moves for a piece)
+                */
+                return switch (cmd) {
+                    case "redrawboard" -> redrawBoard();
+                    default -> help();
+                };
+            }
+            case null -> throw new RuntimeException("Bad client state.");
         }
     }
     private String register() throws ResponseException {
@@ -55,7 +86,7 @@ public class Client {
         String email = repl.prompt("Email: ");
         AuthData authData = server.register(new UserData(username, password, email));
         authToken = authData.authToken();
-        signedIn = true;
+        clientState = ClientState.SIGNED_IN;
         return "User registered.\n";
     }
     private String login() throws ResponseException {
@@ -63,12 +94,12 @@ public class Client {
         String password = repl.prompt("Password: ");
         AuthData authData = server.login(new UserData(username, password, null));
         authToken = authData.authToken();
-        signedIn = true;
+        clientState = ClientState.SIGNED_IN;
         return "Logged in.\n";
     }
     private String logout() throws ResponseException {
         server.logout(authToken);
-        signedIn = false;
+        clientState = ClientState.SIGNED_OUT;
         return "Logged out.\n";
     }
     private String createGame(String[] params) throws ResponseException {
@@ -101,7 +132,15 @@ public class Client {
         String playerColor = params[0];
         String gameNumber = params[1];
         server.joinGame(authToken, playerColor, getGameID(gameNumber));
-        return "Successful join as player.\n" + printBoard(exampleBoard);
+
+        ChessGame.TeamColor teamColor = null;
+        if (Objects.equals(playerColor, "black")) {
+            teamColor = ChessGame.TeamColor.BLACK;
+        } else if (Objects.equals(playerColor, "white")) {
+            teamColor = ChessGame.TeamColor.WHITE;
+        }
+        ws.joinPlayer(authToken, getGameID(gameNumber), teamColor);
+        return "Successful join as player.\n" + printBoard(currentBoard);
     }
     private String joinObserver(String[] params) throws ResponseException {
         if (params.length != 1) {
@@ -109,18 +148,23 @@ public class Client {
         }
         String gameNumber = params[0];
         server.joinGame(authToken, null, getGameID(gameNumber));
-        return "Successful join as observer.\n" + printBoard(exampleBoard);
+        ws.joinObserver(authToken, getGameID(gameNumber));
+        return "Successful join as observer.\n" + printBoard(currentBoard);
+    }
+    public String redrawBoard() {
+        // TODO: print only the board from the perspective of the user
+        return printBoard(currentBoard);
     }
     public String help() {
-        if (!signedIn) {
-            return """
+        return switch (clientState) {
+            case SIGNED_OUT -> """
                     - help (see help text)
                     - login (create new session)
                     - register (create new user)
                     - quit (close the client)
                     """;
-        } else {
-            return """
+
+            case SIGNED_IN -> """
                     - help (see help text)
                     - logout (end session)
                     - createGame <gameName> (create a new game)
@@ -129,7 +173,16 @@ public class Client {
                     - joinObserver <gameNumber> (join an existing game as an observer)
                     - quit (close the client)
                     """;
-        }
+
+            case IN_GAME -> """
+                    - help (see help text)
+                    - redrawBoard (redraw the chess board)
+                    - leave (leave the game)
+                    - makeMove (make a move)
+                    - resign (resign the game)
+                    - highlightMoves (see all legal moves for a piece)
+                    """;
+        };
     }
     private String printBoard(ChessBoard chessBoard) {
         BoardArtist boardArtist = new BoardArtist(chessBoard);
