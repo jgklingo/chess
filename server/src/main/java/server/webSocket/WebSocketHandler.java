@@ -7,6 +7,7 @@ import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import server.JsonResponse;
 import service.AuthService;
@@ -42,7 +43,7 @@ public class WebSocketHandler {
         this.userService = userService;
     }
 
-    @OnMessage
+    @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {

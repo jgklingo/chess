@@ -1,5 +1,6 @@
 package ui;
 
+import exception.ResponseException;
 import webSocket.ServerMessageHandler;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -13,7 +14,11 @@ public class Repl implements ServerMessageHandler {
     private final Client client;
     Scanner scanner = new Scanner(System.in);
     public Repl(String serverUrl) {
-        client = new Client(serverUrl, this);
+        try {
+            client = new Client(serverUrl, this);
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
+        }
     }
     public void run() {
         System.out.println(SET_TEXT_BOLD + "Welcome to 240 Chess! Use one of the following commands to get started:"
@@ -46,7 +51,11 @@ public class Repl implements ServerMessageHandler {
 
     @Override
     public void notify(ServerMessage serverMessage) {
+        if (serverMessage instanceof LoadGameMessage) {
+            client.currentBoard = ((LoadGameMessage) serverMessage).ChessGame().getBoard();
+        } else {
             System.out.println(SET_TEXT_COLOR_BLUE + serverMessage.message());
             printPrompt();
         }
+    }
 }

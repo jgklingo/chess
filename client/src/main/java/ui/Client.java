@@ -28,14 +28,10 @@ public class Client {
         SIGNED_IN, SIGNED_OUT, IN_GAME
     }
 
-    public Client(String serverUrl, Repl repl) {
-        try {
-            server = new ServerFacade(serverUrl);
-            ws = new WebSocketFacade(serverUrl, repl);
-            this.repl = repl;
-        } catch (Throwable e) {
-            throw new RuntimeException("Server or WebSocket Facade failed to start");
-        }
+    public Client(String serverUrl, Repl repl) throws ResponseException {
+        server = new ServerFacade(serverUrl);
+        this.repl = repl;
+        ws = new WebSocketFacade(serverUrl, repl);
     }
 
     public String eval(String input) throws ResponseException {
@@ -140,7 +136,8 @@ public class Client {
             teamColor = ChessGame.TeamColor.WHITE;
         }
         ws.joinPlayer(authToken, getGameID(gameNumber), teamColor);
-        return "Successful join as player.\n" + printBoard(currentBoard);
+        clientState = ClientState.IN_GAME;
+        return "Successful join as player.\n";
     }
     private String joinObserver(String[] params) throws ResponseException {
         if (params.length != 1) {
@@ -149,6 +146,7 @@ public class Client {
         String gameNumber = params[0];
         server.joinGame(authToken, null, getGameID(gameNumber));
         ws.joinObserver(authToken, getGameID(gameNumber));
+        clientState = ClientState.IN_GAME;
         return "Successful join as observer.\n" + printBoard(currentBoard);
     }
     public String redrawBoard() {
