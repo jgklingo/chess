@@ -92,4 +92,8 @@ public class MemoryDataAccess implements DataAccess{
     public void updateGame(Integer gameID, String game) throws DataAccessException {
 
     }
+
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        return null;
+    }
 }

@@ -4,14 +4,19 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 
 public class JoinPlayerCommand extends JoinObserverCommand {
-    public String teamColor;
+    public ChessGame.TeamColor playerColor;
 
-    public JoinPlayerCommand(String authToken, Integer gameID, ChessGame.TeamColor teamColor) {
+    public JoinPlayerCommand(String authToken, Integer gameID, ChessGame.TeamColor playerColor) {
         super(authToken, gameID);
-        this.teamColor = new Gson().toJson(teamColor);
+        this.playerColor = playerColor;
+//        if (teamColor == ChessGame.TeamColor.BLACK) {
+//            this.teamColor = "black";
+//        } else if (teamColor == ChessGame.TeamColor.WHITE) {
+//            this.teamColor = "white";
+//        }
         this.commandType = CommandType.JOIN_PLAYER;
     }
-    public String TeamColor() {
-        return teamColor;
+    public ChessGame.TeamColor PlayerColor() {
+        return playerColor;
     }
 }
