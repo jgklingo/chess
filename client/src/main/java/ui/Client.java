@@ -136,7 +136,7 @@ public class Client {
             teamColor = ChessGame.TeamColor.WHITE;
         }
         ws.joinPlayer(authToken, getGameID(gameNumber), teamColor);
-        clientState = ClientState.IN_GAME;
+        //clientState = ClientState.IN_GAME;
         return "Successful join as player.\n";
     }
     private String joinObserver(String[] params) throws ResponseException {

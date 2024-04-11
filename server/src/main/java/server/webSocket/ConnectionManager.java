@@ -1,9 +1,8 @@
 package server.webSocket;
 
-import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.ServerMessage;
 
-import javax.websocket.Session;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +32,8 @@ public class ConnectionManager {
             connections.remove(c.username);
         }
     }
-    public void whisper(String username, ServerMessage serverMessage) throws IOException {
-        connections.get(username).send(serverMessage.toString());
+    // used to send LoadGameMessage to one player
+    public void whisper(String username, String message) throws IOException {
+        connections.get(username).send(message);
     }
 }

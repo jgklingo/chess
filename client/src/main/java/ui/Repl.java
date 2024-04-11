@@ -51,11 +51,11 @@ public class Repl implements ServerMessageHandler {
 
     @Override
     public void notify(ServerMessage serverMessage) {
-        if (serverMessage instanceof LoadGameMessage) {
-            client.currentBoard = ((LoadGameMessage) serverMessage).ChessGame().getBoard();
-        } else {
-            System.out.println(SET_TEXT_COLOR_BLUE + serverMessage.message());
-            printPrompt();
-        }
+        System.out.println(SET_TEXT_COLOR_BLUE + serverMessage.message());
+        printPrompt();
+    }
+    @Override
+    public void updateBoard(LoadGameMessage loadGameMessage) {
+        client.currentBoard = loadGameMessage.ChessGame().getBoard();
     }
 }

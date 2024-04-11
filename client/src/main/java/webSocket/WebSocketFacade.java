@@ -3,6 +3,7 @@ package webSocket;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinObserverCommand;
 import webSocketMessages.userCommands.JoinPlayerCommand;
@@ -28,7 +29,12 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    serverMessageHandler.notify(serverMessage);
+                    if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                        var loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                        serverMessageHandler.updateBoard(loadGameMessage);
+                    } else {
+                        serverMessageHandler.notify(serverMessage);
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -36,6 +42,7 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    @OnOpen
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }

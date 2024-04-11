@@ -1,32 +1,23 @@
 package server.webSocket;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
-import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
+import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import server.JsonResponse;
 import service.AuthService;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-import spark.Response;
 import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.userCommands.JoinPlayerCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
-import javax.servlet.annotation.WebListener;
-import javax.websocket.OnMessage;
-import javax.websocket.ClientEndpoint;
-import javax.websocket.Session;
 import java.io.IOException;
-import java.util.HashMap;
 
 @WebSocket
 public class WebSocketHandler {
@@ -61,7 +52,7 @@ public class WebSocketHandler {
 
             GameData gameData = gameService.listGames().get(joinPlayerCommand.gameID);
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
-            connections.whisper(username, loadGameMessage);
+            connections.whisper(username, new Gson().toJson(loadGameMessage));
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as the %s player".formatted(username, joinPlayerCommand.teamColor));
@@ -73,6 +64,6 @@ public class WebSocketHandler {
 
     private void exceptionParser(DataAccessException e, Session session) throws IOException {
         ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
-        session.getBasicRemote().sendText(new Gson().toJson(errorMessage));
+        session.getRemote().sendString(new Gson().toJson(errorMessage));
     }
 }
