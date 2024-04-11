@@ -139,8 +139,17 @@ public class WebSocketHandler {
         try {
             MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
             AuthData authData = authService.checkAuth(makeMoveCommand.getAuthString());
-            ChessGame chessGame = gameService.getGame(makeMoveCommand.gameID()).game();
+            GameData gameData = gameService.getGame(makeMoveCommand.gameID());
+            ChessGame chessGame = gameData.game();
             ChessMove move = makeMoveCommand.chessMove();
+
+            if (chessGame.getBoard().getPiece(move.getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE && !Objects.equals(gameData.whiteUsername(), authData.username())) {
+                throw new InvalidMoveException();
+            }
+            if (chessGame.getBoard().getPiece(move.getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK && !Objects.equals(gameData.blackUsername(), authData.username())) {
+                throw new InvalidMoveException();
+            }
+
             chessGame.makeMove(move);
             gameService.updateGame(makeMoveCommand.gameID(), new Gson().toJson(chessGame));
             connections.broadcast(null, new LoadGameMessage(chessGame));
