@@ -65,14 +65,14 @@ public class WebSocketHandler {
                 throw new DataAccessException("Spot is already taken.");
             }
 
-            connections.add(username, session);
+            connections.add(username, session, joinPlayerCommand.GameID());
 
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as the %s player.".formatted(username, joinPlayerCommand.playerColor));
-            connections.broadcast(username, notificationMessage);
+            connections.broadcast(username, notificationMessage, joinPlayerCommand.GameID());
         } catch (DataAccessException e) {
             exceptionParser(e, session);
         }
@@ -87,14 +87,14 @@ public class WebSocketHandler {
                 throw new DataAccessException("Invalid game ID");
             }
 
-            connections.add(username, session);
+            connections.add(username, session, joinObserverCommand.GameID());
 
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as an observer.".formatted(username));
-            connections.broadcast(username, notificationMessage);
+            connections.broadcast(username, notificationMessage, joinObserverCommand.GameID());
         } catch (DataAccessException e) {
             exceptionParser(e, session);
         }
@@ -106,7 +106,7 @@ public class WebSocketHandler {
             String username = authData.username();
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has left the game.".formatted(username));
-            connections.broadcast(username, notificationMessage);
+            connections.broadcast(username, notificationMessage, leaveCommand.gameID());
             connections.remove(username);
         } catch (DataAccessException e) {
             exceptionParser(e, session);
@@ -129,7 +129,7 @@ public class WebSocketHandler {
             gameService.updateGame(resignCommand.gameID(), new Gson().toJson(updatedGame));
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has resigned the game.".formatted(username));
-            connections.broadcast(null, notificationMessage);
+            connections.broadcast(null, notificationMessage, resignCommand.gameID());
             //  connections.broadcast(username, new LoadGameMessage(updatedGame));
         } catch (DataAccessException e) {
             exceptionParser(e, session);
@@ -152,10 +152,10 @@ public class WebSocketHandler {
 
             chessGame.makeMove(move);
             gameService.updateGame(makeMoveCommand.gameID(), new Gson().toJson(chessGame));
-            connections.broadcast(null, new LoadGameMessage(chessGame));
+            connections.broadcast(null, new LoadGameMessage(chessGame), makeMoveCommand.gameID());
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s made the following move: %s".formatted(authData.username(), move));
-            connections.broadcast(authData.username(), notificationMessage);
+            connections.broadcast(authData.username(), notificationMessage, makeMoveCommand.gameID());
         } catch (DataAccessException | InvalidMoveException e) {
             exceptionParser(e, session);
         }

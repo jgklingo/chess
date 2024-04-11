@@ -172,9 +172,9 @@ public class Client {
             server.joinGame(null, color, activeGameID);
             activeColor = null;
         }
-        activeGameID = null;
+        ws.leave(authToken, activeGameID);
         clientState = ClientState.SIGNED_IN;
-        ws.leave(authToken);
+        activeGameID = null;
         return "Left game.\n";
     }
     public String resign() throws ResponseException {

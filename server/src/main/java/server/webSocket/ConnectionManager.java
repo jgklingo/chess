@@ -6,22 +6,23 @@ import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
-    public void add(String username, Session session) {
-        var connection = new Connection(username, session);
+    public void add(String username, Session session, Integer lobby) {
+        var connection = new Connection(username, session, lobby);
         connections.put(username, connection);
     }
     public void remove(String username) {
         connections.remove(username);
     }
-    public void broadcast(String excludeUsername, ServerMessage serverMessage) throws IOException {
+    public void broadcast(String excludeUsername, ServerMessage serverMessage, Integer lobby) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.username.equals(excludeUsername)) {
+                if (!c.username.equals(excludeUsername) && Objects.equals(c.lobby, lobby)) {
                     c.send(new Gson().toJson(serverMessage));
                 }
             } else {
