@@ -1,6 +1,9 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
@@ -71,13 +74,16 @@ public class Client {
                 return switch (cmd) {
                     case "redrawboard" -> printBoard(activeColor);
                     case "leave" -> leaveGame();
+                    case "makemove" -> makeMove();
                     case "resign" -> resign();
+                    case "highlightmoves" -> highlightMoves();
                     default -> help();
                 };
             }
             case null -> throw new RuntimeException("Bad client state.");
         }
     }
+
     private String register() throws ResponseException {
         String username = repl.prompt("Username: ");
         String password = repl.prompt("Password: ");
@@ -174,6 +180,27 @@ public class Client {
     public String resign() throws ResponseException {
         ws.resign(authToken, activeGameID);
         return "Resigned game.\n";
+    }
+    private String makeMove() throws ResponseException {
+        int startRow = Integer.parseInt(repl.prompt("Piece location row: "));
+        int startCol = Integer.parseInt(repl.prompt("Piece location column: "));
+        int endRow = Integer.parseInt(repl.prompt("Move to row: "));
+        int endCol = Integer.parseInt(repl.prompt("Move to column: "));
+        ChessPosition start = new ChessPosition(startRow, startCol);
+        ChessPosition end = new ChessPosition(endRow, endCol);
+        ChessPiece.PieceType promotionPiece = null;
+        switch (repl.prompt("Promotion piece: ")) {
+            case "queen" -> {promotionPiece = ChessPiece.PieceType.QUEEN;}
+            case "rook" -> {promotionPiece = ChessPiece.PieceType.ROOK;}
+            case "bishop" -> {promotionPiece = ChessPiece.PieceType.BISHOP;}
+            case "knight" -> {promotionPiece = ChessPiece.PieceType.KNIGHT;}
+        }
+
+        ws.makeMove(authToken, activeGameID, new ChessMove(start, end, promotionPiece));
+        return "Made move.\n";
+    }
+    private String highlightMoves() throws ResponseException {
+        return null;
     }
     public String help() {
         return switch (clientState) {

@@ -1,6 +1,8 @@
 package server.webSocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.AuthData;
@@ -44,8 +46,10 @@ public class WebSocketHandler {
             case JOIN_OBSERVER -> joinObserver(session, message);
             case LEAVE -> leave(session, message);
             case RESIGN -> resign(session, message);
+            case MAKE_MOVE -> makeMove(session, message);
         }
     }
+
     public void joinPlayer(Session session, String message) throws IOException {
         JoinPlayerCommand joinPlayerCommand = new Gson().fromJson(message, JoinPlayerCommand.class);
         try {
@@ -117,7 +121,7 @@ public class WebSocketHandler {
                     || Objects.equals(username, gameService.getGame(resignCommand.gameID()).whiteUsername()))) {
                 throw new DataAccessException("Must be a player to resign.");
             }
-            ChessGame updatedGame =  gameService.getGame(resignCommand.gameID()).game();
+            ChessGame updatedGame = gameService.getGame(resignCommand.gameID()).game();
             if (updatedGame.gameOver) {
                 throw new DataAccessException("Game has already ended.");
             }
@@ -131,9 +135,25 @@ public class WebSocketHandler {
             exceptionParser(e, session);
         }
     }
+    private void makeMove(Session session, String message) throws IOException {
+        try {
+            MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
+            AuthData authData = authService.checkAuth(makeMoveCommand.getAuthString());
+            ChessGame chessGame = gameService.getGame(makeMoveCommand.gameID()).game();
+            ChessMove move = makeMoveCommand.chessMove();
+            chessGame.makeMove(move);
+            gameService.updateGame(makeMoveCommand.gameID(), new Gson().toJson(chessGame));
+            connections.broadcast(null, new LoadGameMessage(chessGame));
+            NotificationMessage notificationMessage = new NotificationMessage(
+                    "%s made the following move: %s".formatted(authData.username(), move));
+            connections.broadcast(authData.username(), notificationMessage);
+        } catch (DataAccessException | InvalidMoveException e) {
+            exceptionParser(e, session);
+        }
+    }
 
-    private void exceptionParser(DataAccessException e, Session session) throws IOException {
-        ErrorMessage errorMessage = new ErrorMessage("Error" + e.getMessage());
+    private void exceptionParser(Throwable e, Session session) throws IOException {
+        ErrorMessage errorMessage = new ErrorMessage("Error " + e.getMessage());
         session.getRemote().sendString(new Gson().toJson(errorMessage));
     }
 }
