@@ -172,9 +172,7 @@ public class Client {
         return "Left game.\n";
     }
     public String resign() throws ResponseException {
-        ChessGame updatedGame = currentGame;
-        updatedGame.gameOver = true;
-        ws.resign(authToken, activeGameID, updatedGame);
+        ws.resign(authToken, activeGameID);
         return "Resigned game.\n";
     }
     public String help() {

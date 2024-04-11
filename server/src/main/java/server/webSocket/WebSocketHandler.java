@@ -113,11 +113,13 @@ public class WebSocketHandler {
             ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
             AuthData authData = authService.checkAuth(resignCommand.getAuthString());
             String username = authData.username();
-            gameService.updateGame(resignCommand.gameID(), resignCommand.game());
-            connections.broadcast(authData.username(), new LoadGameMessage(new Gson().fromJson(resignCommand.game(), ChessGame.class)));
+            ChessGame updatedGame =  gameService.getGame(resignCommand.gameID()).game();
+            updatedGame.gameOver = true;
+            gameService.updateGame(resignCommand.gameID(), new Gson().toJson(updatedGame));
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has resigned the game.".formatted(username));
-            connections.broadcast(username, notificationMessage);
+            connections.broadcast(null, notificationMessage);
+            //  connections.broadcast(username, new LoadGameMessage(updatedGame));
         } catch (DataAccessException e) {
             exceptionParser(e, session);
         }
