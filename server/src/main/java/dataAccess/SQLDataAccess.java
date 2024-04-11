@@ -205,6 +205,26 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
+    public void updateGame(Integer gameID, String game) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            // check if game exists
+            var preparedStatement = conn.prepareStatement("SELECT * FROM game WHERE ID=?");
+            preparedStatement.setInt(1, gameID);
+            try (var rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new DataAccessException("Error: bad request", 400);
+                }
+            }
+            // update the game
+            PreparedStatement preparedStatement1 = conn.prepareStatement("UPDATE game SET json=? WHERE ID=?");
+            preparedStatement1.setString(1, game);
+            preparedStatement1.setInt(2, gameID);
+            preparedStatement1.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
+    }
+
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  auth (

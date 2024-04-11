@@ -88,4 +88,8 @@ public class MemoryDataAccess implements DataAccess{
         games.clear();
         authTokens.clear();
     }
+
+    public void updateGame(Integer gameID, String game) throws DataAccessException {
+
+    }
 }

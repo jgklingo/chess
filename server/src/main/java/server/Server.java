@@ -127,10 +127,10 @@ public class Server {
             String authToken = req.headers("authorization");
             var requestBody = new Gson().fromJson(req.body(), HashMap.class);
             var playerColor = (String) requestBody.get("playerColor");
-            var gameID = (String) requestBody.get("gameID");
+            var gameID = String.valueOf(requestBody.get("gameID"));
             if (authToken != null) {
                 AuthData authData = authService.checkAuth(authToken);
-                gameService.joinGame(authData.username(), playerColor, Integer.parseInt(gameID));
+                gameService.joinGame(authData.username(), playerColor, (int) Double.parseDouble(gameID));
             } else {
                 gameService.joinGame(null, playerColor, Integer.parseInt(gameID));
             }

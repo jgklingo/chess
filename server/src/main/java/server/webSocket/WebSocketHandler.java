@@ -1,5 +1,6 @@
 package server.webSocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.AuthData;
@@ -14,10 +15,7 @@ import service.UserService;
 import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
-import webSocketMessages.userCommands.JoinObserverCommand;
-import webSocketMessages.userCommands.JoinPlayerCommand;
-import webSocketMessages.userCommands.LeaveCommand;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 
@@ -44,6 +42,7 @@ public class WebSocketHandler {
             case JOIN_PLAYER -> joinPlayer(session, message);
             case JOIN_OBSERVER -> joinObserver(session, message);
             case LEAVE -> leave(session, message);
+            case RESIGN -> resign(session, message);
         }
     }
     public void joinPlayer(Session session, String message) throws IOException {
@@ -55,7 +54,7 @@ public class WebSocketHandler {
 
             GameData gameData = gameService.listGames().get(joinPlayerCommand.gameID);
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
-            connections.whisper(username, new Gson().toJson(loadGameMessage));
+            connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as the %s player.".formatted(username, joinPlayerCommand.teamColor));
@@ -73,7 +72,7 @@ public class WebSocketHandler {
 
             GameData gameData = gameService.listGames().get(joinObserverCommand.gameID);
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
-            connections.whisper(username, new Gson().toJson(loadGameMessage));
+            connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as an observer.".formatted(username));
@@ -91,6 +90,20 @@ public class WebSocketHandler {
                     "%s has left the game.".formatted(username));
             connections.broadcast(username, notificationMessage);
             connections.remove(username);
+        } catch (DataAccessException e) {
+            exceptionParser(e, session);
+        }
+    }
+    public void resign(Session session, String message) throws IOException {
+        try {
+            ResignCommand resignCommand = new Gson().fromJson(message, ResignCommand.class);
+            AuthData authData = authService.checkAuth(resignCommand.getAuthString());
+            String username = authData.username();
+            gameService.updateGame(resignCommand.gameID(), resignCommand.game());
+            connections.broadcast(authData.username(), new LoadGameMessage(new Gson().fromJson(resignCommand.game(), ChessGame.class)));
+            NotificationMessage notificationMessage = new NotificationMessage(
+                    "%s has resigned the game.".formatted(username));
+            connections.broadcast(username, notificationMessage);
         } catch (DataAccessException e) {
             exceptionParser(e, session);
         }

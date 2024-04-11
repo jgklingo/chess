@@ -5,5 +5,5 @@ import webSocketMessages.serverMessages.ServerMessage;
 
 public interface ServerMessageHandler {
     void notify(ServerMessage serverMessage);
-    void updateGame(LoadGameMessage loadGameMessage);
+    void notify(LoadGameMessage loadGameMessage);
 }

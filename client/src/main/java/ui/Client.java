@@ -71,6 +71,7 @@ public class Client {
                 return switch (cmd) {
                     case "redrawboard" -> printBoard(activeColor);
                     case "leave" -> leaveGame();
+                    case "resign" -> resign();
                     default -> help();
                 };
             }
@@ -155,7 +156,7 @@ public class Client {
         return "Successful join as observer.\n";
     }
     public String leaveGame() throws ResponseException {
-        if (activeColor != null) {
+        if (activeColor != null) {  // this block uses HTTP to remove the username from the game database
             String color = null;
             if (activeColor == ChessGame.TeamColor.BLACK) {
                 color = "black";
@@ -169,6 +170,12 @@ public class Client {
         clientState = ClientState.SIGNED_IN;
         ws.leave(authToken);
         return "Left game.\n";
+    }
+    public String resign() throws ResponseException {
+        ChessGame updatedGame = currentGame;
+        updatedGame.gameOver = true;
+        ws.resign(authToken, activeGameID, updatedGame);
+        return "Resigned game.\n";
     }
     public String help() {
         return switch (clientState) {

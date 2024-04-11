@@ -5,10 +5,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.JoinObserverCommand;
-import webSocketMessages.userCommands.JoinPlayerCommand;
-import webSocketMessages.userCommands.LeaveCommand;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -33,7 +30,7 @@ public class WebSocketFacade extends Endpoint {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                         var loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-                        serverMessageHandler.updateGame(loadGameMessage);
+                        serverMessageHandler.notify(loadGameMessage);
                     } else {
                         serverMessageHandler.notify(serverMessage);
                     }
@@ -70,6 +67,15 @@ public class WebSocketFacade extends Endpoint {
     public void leave(String authToken) throws ResponseException {
         try {
             var command = new LeaveCommand(authToken);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void resign(String authToken, Integer gameID, ChessGame updatedGame) throws ResponseException {
+        try {
+            var command = new ResignCommand(authToken, gameID, new Gson().toJson(updatedGame));
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

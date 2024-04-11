@@ -24,4 +24,8 @@ public class GameService {
     public void joinGame(String username, String playerColor, Integer gameID) throws DataAccessException {
         dataAccess.addPlayer(username, playerColor, gameID);
     }
+
+    public void updateGame(Integer gameID, String game) throws DataAccessException {
+        dataAccess.updateGame(gameID, game);
+    }
 }

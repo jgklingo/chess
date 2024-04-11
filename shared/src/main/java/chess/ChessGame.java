@@ -12,6 +12,7 @@ import java.util.Collection;
 public class ChessGame {
     ChessBoard board = new ChessBoard();
     TeamColor currentTurn = TeamColor.WHITE;
+    public boolean gameOver = false;
     public ChessGame() {
         board.resetBoard();
     }
@@ -48,6 +49,9 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        if (gameOver) {
+            return null;
+        }
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> pieceCalculatorMoves;
         if (piece == null) {

@@ -1,5 +1,6 @@
 package server.webSocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import webSocketMessages.serverMessages.ServerMessage;
 
@@ -21,7 +22,7 @@ public class ConnectionManager {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (!c.username.equals(excludeUsername)) {
-                    c.send(serverMessage.toString());
+                    c.send(new Gson().toJson(serverMessage));
                 }
             } else {
                 removeList.add(c);
@@ -33,7 +34,7 @@ public class ConnectionManager {
         }
     }
     // used to send LoadGameMessage to one player
-    public void whisper(String username, String message) throws IOException {
-        connections.get(username).send(message);
+    public void whisper(String username, ServerMessage serverMessage) throws IOException {
+        connections.get(username).send(new Gson().toJson(serverMessage));
     }
 }

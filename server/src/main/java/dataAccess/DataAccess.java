@@ -16,4 +16,5 @@ public interface DataAccess {
     GameData newGame(String name) throws DataAccessException;
     void addPlayer(String username, String playerColor, Integer gameID) throws DataAccessException;
     void deleteDB() throws DataAccessException;
+    void updateGame(Integer gameID, String game) throws DataAccessException;
 }
