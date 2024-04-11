@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import model.GameData;
@@ -27,5 +28,9 @@ public class GameService {
 
     public void updateGame(Integer gameID, String game) throws DataAccessException {
         dataAccess.updateGame(gameID, game);
+    }
+
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        return dataAccess.getGame(gameID);
     }
 }

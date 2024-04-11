@@ -225,6 +225,26 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement("SELECT * FROM game WHERE ID=?");
+            preparedStatement.setInt(1, gameID);
+            try (var rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new DataAccessException("Error: bad request", 400);
+                }
+                int ID = rs.getInt("ID");
+                String whiteUsername = rs.getString("whiteUsername");
+                String blackUsername = rs.getString("blackUsername");
+                String gameName = rs.getString("gameName");
+                String json = rs.getString("json");
+                return new GameData(ID, whiteUsername, blackUsername, gameName, new Gson().fromJson(json, ChessGame.class));
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage(), 500);
+        }
+    }
+
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  auth (

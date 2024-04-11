@@ -18,6 +18,7 @@ import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
@@ -50,14 +51,18 @@ public class WebSocketHandler {
         try {
             AuthData authData = authService.checkAuth(joinPlayerCommand.getAuthString());
             String username = authData.username();
+            GameData gameData = gameService.listGames().get(joinPlayerCommand.gameID);
+            if ((joinPlayerCommand.playerColor == ChessGame.TeamColor.WHITE && gameData.whiteUsername() != null)
+                    || (joinPlayerCommand.playerColor == ChessGame.TeamColor.BLACK && gameData.blackUsername() != null)) {
+                throw new DataAccessException("Error: Spot is already taken.");
+            }
             connections.add(username, session);
 
-            GameData gameData = gameService.listGames().get(joinPlayerCommand.gameID);
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
-                    "%s has joined the game as the %s player.".formatted(username, joinPlayerCommand.teamColor));
+                    "%s has joined the game as the %s player.".formatted(username, joinPlayerCommand.playerColor));
             connections.broadcast(username, notificationMessage);
         } catch (DataAccessException e) {
             exceptionParser(e, session);
