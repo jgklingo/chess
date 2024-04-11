@@ -52,10 +52,15 @@ public class WebSocketHandler {
             AuthData authData = authService.checkAuth(joinPlayerCommand.getAuthString());
             String username = authData.username();
             GameData gameData = gameService.listGames().get(joinPlayerCommand.gameID);
-            if ((joinPlayerCommand.playerColor == ChessGame.TeamColor.WHITE && gameData.whiteUsername() != null)
-                    || (joinPlayerCommand.playerColor == ChessGame.TeamColor.BLACK && gameData.blackUsername() != null)) {
-                throw new DataAccessException("Error: Spot is already taken.");
+            if (gameData == null) {
+                throw new DataAccessException("Invalid game ID");
             }
+
+            if ((joinPlayerCommand.playerColor == ChessGame.TeamColor.WHITE && !Objects.equals(gameData.whiteUsername(), username))
+                    || (joinPlayerCommand.playerColor == ChessGame.TeamColor.BLACK && !Objects.equals(gameData.blackUsername(), username))) {
+                throw new DataAccessException("Spot is already taken.");
+            }
+
             connections.add(username, session);
 
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
@@ -73,9 +78,13 @@ public class WebSocketHandler {
         try {
             AuthData authData = authService.checkAuth(joinObserverCommand.getAuthString());
             String username = authData.username();
+            GameData gameData = gameService.listGames().get(joinObserverCommand.gameID);
+            if (gameData == null) {
+                throw new DataAccessException("Invalid game ID");
+            }
+
             connections.add(username, session);
 
-            GameData gameData = gameService.listGames().get(joinObserverCommand.gameID);
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.whisper(username, loadGameMessage);
 
@@ -115,7 +124,7 @@ public class WebSocketHandler {
     }
 
     private void exceptionParser(DataAccessException e, Session session) throws IOException {
-        ErrorMessage errorMessage = new ErrorMessage(e.getMessage());
+        ErrorMessage errorMessage = new ErrorMessage("Error" + e.getMessage());
         session.getRemote().sendString(new Gson().toJson(errorMessage));
     }
 }
