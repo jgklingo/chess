@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -50,7 +51,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (gameOver) {
-            return null;
+            return Collections.emptyList();
         }
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> pieceCalculatorMoves;
