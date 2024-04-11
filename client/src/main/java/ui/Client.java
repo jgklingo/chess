@@ -18,11 +18,12 @@ import java.util.Objects;
 public class Client {
     private final Repl repl;  // This IS the ServerMessageHandler/NotificationHandler
     private final ServerFacade server;
-    private WebSocketFacade ws;
+    private final WebSocketFacade ws;
     private ClientState clientState = ClientState.SIGNED_OUT;
     private String authToken = null;
     private HashMap<Integer, Integer> gameListMapping;
-    protected ChessBoard currentBoard;
+    private ChessGame.TeamColor color = null;
+    protected ChessGame currentGame;
 
     private enum ClientState {
         SIGNED_IN, SIGNED_OUT, IN_GAME
@@ -53,8 +54,8 @@ public class Client {
                     case "logout" -> logout();
                     case "creategame" -> createGame(params);
                     case "listgames" -> listGames();
-                    case "joingame" -> joinGame(params);
-                    case "joinobserver" -> joinObserver(params);
+                    case "joingame" -> joinGame(params) + printBoard(color);
+                    case "joinobserver" -> joinObserver(params) + printBoard(color);
                     case "quit" -> "";
                     default -> help();
                 };
@@ -69,7 +70,8 @@ public class Client {
                     - highlightMoves (see all legal moves for a piece)
                 */
                 return switch (cmd) {
-                    case "redrawboard" -> redrawBoard();
+                    case "redrawboard" -> printBoard(color);
+                    case "leave" -> leaveGame();
                     default -> help();
                 };
             }
@@ -136,7 +138,8 @@ public class Client {
             teamColor = ChessGame.TeamColor.WHITE;
         }
         ws.joinPlayer(authToken, getGameID(gameNumber), teamColor);
-        //clientState = ClientState.IN_GAME;
+        color = teamColor;
+        clientState = ClientState.IN_GAME;
         return "Successful join as player.\n";
     }
     private String joinObserver(String[] params) throws ResponseException {
@@ -146,12 +149,14 @@ public class Client {
         String gameNumber = params[0];
         server.joinGame(authToken, null, getGameID(gameNumber));
         ws.joinObserver(authToken, getGameID(gameNumber));
+        color = null;
         clientState = ClientState.IN_GAME;
-        return "Successful join as observer.\n" + printBoard(currentBoard);
+        return "Successful join as observer.\n";
     }
-    public String redrawBoard() {
-        // TODO: print only the board from the perspective of the user
-        return printBoard(currentBoard);
+    public String leaveGame() throws ResponseException {
+
+        clientState = ClientState.SIGNED_IN;
+        return "Left game.";
     }
     public String help() {
         return switch (clientState) {
@@ -182,9 +187,14 @@ public class Client {
                     """;
         };
     }
-    private String printBoard(ChessBoard chessBoard) {
-        BoardArtist boardArtist = new BoardArtist(chessBoard);
-        return boardArtist.drawReverseBoard() + "\n" + boardArtist.drawBoard();
+    private String printBoard(ChessGame.TeamColor color) {
+        // TODO: print only the board from the perspective of the user
+        BoardArtist boardArtist = new BoardArtist(currentGame.getBoard());
+        return switch (color) {
+            case WHITE -> boardArtist.drawBoard();
+            case BLACK -> boardArtist.drawReverseBoard();
+            case null -> boardArtist.drawReverseBoard() + "\n" + boardArtist.drawBoard();
+        };
     }
     private HashMap<Integer, Integer> mapGames() throws ResponseException {
         HashMap<Integer, Integer> mapping = new HashMap<>();

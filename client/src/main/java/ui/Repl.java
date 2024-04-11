@@ -55,7 +55,7 @@ public class Repl implements ServerMessageHandler {
         printPrompt();
     }
     @Override
-    public void updateBoard(LoadGameMessage loadGameMessage) {
-        client.currentBoard = loadGameMessage.ChessGame().getBoard();
+    public void updateGame(LoadGameMessage loadGameMessage) {
+        client.currentGame = loadGameMessage.ChessGame();
     }
 }
