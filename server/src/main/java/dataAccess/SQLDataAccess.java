@@ -161,7 +161,7 @@ public class SQLDataAccess implements DataAccess {
             try (var rs = preparedStatement.executeQuery()) {
                 if (!rs.next()) {
                     throw new DataAccessException("Error: bad request", 400);
-                } else {
+                } else if (username != null) {
                     // check if spot is taken
                     var whiteUsername = rs.getString("whiteUsername");
                     var blackUsername = rs.getString("blackUsername");

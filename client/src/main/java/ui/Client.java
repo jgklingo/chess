@@ -1,13 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import server.ServerFacade;
-import webSocket.ServerMessageHandler;
 import webSocket.WebSocketFacade;
 
 import java.util.ArrayList;
@@ -22,7 +20,8 @@ public class Client {
     private ClientState clientState = ClientState.SIGNED_OUT;
     private String authToken = null;
     private HashMap<Integer, Integer> gameListMapping;
-    private ChessGame.TeamColor color = null;
+    private ChessGame.TeamColor activeColor = null;
+    private Integer activeGameID = null;
     protected ChessGame currentGame;
 
     private enum ClientState {
@@ -54,8 +53,8 @@ public class Client {
                     case "logout" -> logout();
                     case "creategame" -> createGame(params);
                     case "listgames" -> listGames();
-                    case "joingame" -> joinGame(params) + printBoard(color);
-                    case "joinobserver" -> joinObserver(params) + printBoard(color);
+                    case "joingame" -> joinGame(params) + printBoard(activeColor);
+                    case "joinobserver" -> joinObserver(params) + printBoard(activeColor);
                     case "quit" -> "";
                     default -> help();
                 };
@@ -70,7 +69,7 @@ public class Client {
                     - highlightMoves (see all legal moves for a piece)
                 */
                 return switch (cmd) {
-                    case "redrawboard" -> printBoard(color);
+                    case "redrawboard" -> printBoard(activeColor);
                     case "leave" -> leaveGame();
                     default -> help();
                 };
@@ -129,7 +128,8 @@ public class Client {
         }
         String playerColor = params[0];
         String gameNumber = params[1];
-        server.joinGame(authToken, playerColor, getGameID(gameNumber));
+        activeGameID = getGameID(gameNumber);
+        server.joinGame(authToken, playerColor, activeGameID);
 
         ChessGame.TeamColor teamColor = null;
         if (Objects.equals(playerColor, "black")) {
@@ -138,7 +138,7 @@ public class Client {
             teamColor = ChessGame.TeamColor.WHITE;
         }
         ws.joinPlayer(authToken, getGameID(gameNumber), teamColor);
-        color = teamColor;
+        activeColor = teamColor;
         clientState = ClientState.IN_GAME;
         return "Successful join as player.\n";
     }
@@ -147,16 +147,28 @@ public class Client {
             return help();
         }
         String gameNumber = params[0];
-        server.joinGame(authToken, null, getGameID(gameNumber));
+        activeGameID = getGameID(gameNumber);
+        server.joinGame(authToken, null, activeGameID);
         ws.joinObserver(authToken, getGameID(gameNumber));
-        color = null;
+        activeColor = null;
         clientState = ClientState.IN_GAME;
         return "Successful join as observer.\n";
     }
     public String leaveGame() throws ResponseException {
-
+        if (activeColor != null) {
+            String color = null;
+            if (activeColor == ChessGame.TeamColor.BLACK) {
+                color = "black";
+            } else if (activeColor == ChessGame.TeamColor.WHITE) {
+                color = "white";
+            }
+            server.joinGame(null, color, activeGameID);
+            activeColor = null;
+        }
+        activeGameID = null;
         clientState = ClientState.SIGNED_IN;
-        return "Left game.";
+        ws.leave(authToken);
+        return "Left game.\n";
     }
     public String help() {
         return switch (clientState) {

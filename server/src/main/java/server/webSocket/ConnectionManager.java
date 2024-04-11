@@ -29,7 +29,7 @@ public class ConnectionManager {
         }
 
         for (var c : removeList) {
-            connections.remove(c.username);
+            remove(c.username);
         }
     }
     // used to send LoadGameMessage to one player
