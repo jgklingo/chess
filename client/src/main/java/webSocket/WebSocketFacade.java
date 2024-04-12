@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
@@ -32,6 +33,9 @@ public class WebSocketFacade extends Endpoint {
                     if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                         var loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
                         serverMessageHandler.notify(loadGameMessage);
+                    } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                        var errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                        serverMessageHandler.notify(errorMessage);
                     } else {
                         serverMessageHandler.notify(serverMessage);
                     }

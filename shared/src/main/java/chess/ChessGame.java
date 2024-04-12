@@ -50,7 +50,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        if (gameOver) {
+        if (gameOver || getBoard().getPiece(startPosition).getTeamColor() != currentTurn) {
             return Collections.emptyList();
         }
         ChessPiece piece = board.getPiece(startPosition);
@@ -75,6 +75,12 @@ public class ChessGame {
         if (this.currentTurn == board.getPiece(move.getStartPosition()).getTeamColor()
                 && validMoves.contains(move)) {
             this.board = testMove(move);
+
+            if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)
+                    || isInStalemate(TeamColor.WHITE) || isInStalemate(TeamColor.BLACK)) {
+                gameOver = true;
+                return;
+            }
 
             if (currentTurn == TeamColor.BLACK) {
                 this.currentTurn = TeamColor.WHITE;

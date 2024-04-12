@@ -56,23 +56,15 @@ public class Client {
                     case "logout" -> logout();
                     case "creategame" -> createGame(params);
                     case "listgames" -> listGames();
-                    case "joingame" -> joinGame(params) + printBoard(activeColor);
-                    case "joinobserver" -> joinObserver(params) + printBoard(activeColor);
+                    case "joingame" -> joinGame(params);
+                    case "joinobserver" -> joinObserver(params);
                     case "quit" -> "";
                     default -> help();
                 };
             }
             case IN_GAME -> {
-                /*
-                    - help (see help text)
-                    - redrawBoard (redraw the chess board)
-                    - leave (leave the game)
-                    - makeMove (make a move)
-                    - resign (resign the game)
-                    - highlightMoves (see all legal moves for a piece)
-                */
                 return switch (cmd) {
-                    case "redrawboard" -> printBoard(activeColor);
+                    case "redrawboard" -> redrawBoard();
                     case "leave" -> leaveGame();
                     case "makemove" -> makeMove();
                     case "resign" -> resign();
@@ -177,6 +169,10 @@ public class Client {
         activeGameID = null;
         return "Left game.\n";
     }
+    private String redrawBoard() {
+        printBoard();
+        return "Board redrawn.";
+    }
     public String resign() throws ResponseException {
         ws.resign(authToken, activeGameID);
         return "Resigned game.\n";
@@ -189,7 +185,7 @@ public class Client {
         ChessPosition start = new ChessPosition(startRow, startCol);
         ChessPosition end = new ChessPosition(endRow, endCol);
         ChessPiece.PieceType promotionPiece = null;
-        switch (repl.prompt("Promotion piece: ")) {
+        switch (repl.prompt("Promotion piece (return for null): ")) {
             case "queen" -> {promotionPiece = ChessPiece.PieceType.QUEEN;}
             case "rook" -> {promotionPiece = ChessPiece.PieceType.ROOK;}
             case "bishop" -> {promotionPiece = ChessPiece.PieceType.BISHOP;}
@@ -197,10 +193,13 @@ public class Client {
         }
 
         ws.makeMove(authToken, activeGameID, new ChessMove(start, end, promotionPiece));
-        return "Made move.\n";
+        return "Sent move to server.\n";
     }
     private String highlightMoves() throws ResponseException {
-        return null;
+        int row = Integer.parseInt(repl.prompt("Piece location row: "));
+        int col = Integer.parseInt(repl.prompt("Piece location column: "));
+        ChessPosition position = new ChessPosition(row, col);
+        return new BoardArtist(currentGame.getBoard()).showMoves(currentGame.validMoves(position));
     }
     public String help() {
         return switch (clientState) {
@@ -231,14 +230,14 @@ public class Client {
                     """;
         };
     }
-    private String printBoard(ChessGame.TeamColor color) {
-        // TODO: print only the board from the perspective of the user
+    protected void printBoard() {
         BoardArtist boardArtist = new BoardArtist(currentGame.getBoard());
-        return switch (color) {
-            case WHITE -> boardArtist.drawBoard();
-            case BLACK -> boardArtist.drawReverseBoard();
+        String board = switch (activeColor) {
+            case WHITE -> boardArtist.drawReverseBoard();
+            case BLACK -> boardArtist.drawBoard();
             case null -> boardArtist.drawReverseBoard() + "\n" + boardArtist.drawBoard();
         };
+        System.out.println(board);
     }
     private HashMap<Integer, Integer> mapGames() throws ResponseException {
         HashMap<Integer, Integer> mapping = new HashMap<>();

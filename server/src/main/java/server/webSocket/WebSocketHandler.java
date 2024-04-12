@@ -162,7 +162,7 @@ public class WebSocketHandler {
     }
 
     private void exceptionParser(Throwable e, Session session) throws IOException {
-        ErrorMessage errorMessage = new ErrorMessage("Error " + e.getMessage());
+        ErrorMessage errorMessage = new ErrorMessage("Error: " + e.getMessage());
         session.getRemote().sendString(new Gson().toJson(errorMessage));
     }
 }

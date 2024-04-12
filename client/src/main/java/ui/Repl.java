@@ -2,6 +2,7 @@ package ui;
 
 import exception.ResponseException;
 import webSocket.ServerMessageHandler;
+import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 
@@ -51,12 +52,19 @@ public class Repl implements ServerMessageHandler {
 
     @Override
     public void notify(ServerMessage serverMessage) {
-        System.out.println(SET_TEXT_COLOR_BLUE + serverMessage.message());
+        System.out.println(SET_TEXT_COLOR_BLUE + "\n" + serverMessage.message());
+        printPrompt();
+    }
+    @Override
+    public void notify(ErrorMessage errorMessage) {
+        System.out.println(SET_TEXT_COLOR_RED + "\n" + errorMessage.errorMessage());
         printPrompt();
     }
     @Override
     public void notify(LoadGameMessage loadGameMessage) {
-        System.out.println("*GAME UPDATED*");
         client.currentGame = loadGameMessage.ChessGame();
+        System.out.println();
+        client.printBoard();
+        printPrompt();
     }
 }
