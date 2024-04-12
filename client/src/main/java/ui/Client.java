@@ -178,10 +178,21 @@ public class Client {
         return "Resigned game.\n";
     }
     private String makeMove() throws ResponseException {
+        final HashMap<String, Integer> columnToCoordinate = new HashMap<>() {{
+            put("a", 8);
+            put("b", 7);
+            put("c", 6);
+            put("d", 5);
+            put("e", 4);
+            put("f", 3);
+            put("g", 2);
+            put("h", 1);
+        }};
+
+        int startCol = columnToCoordinate.get(repl.prompt("Piece location column: "));
         int startRow = Integer.parseInt(repl.prompt("Piece location row: "));
-        int startCol = Integer.parseInt(repl.prompt("Piece location column: "));
+        int endCol = columnToCoordinate.get(repl.prompt("Move to column: "));
         int endRow = Integer.parseInt(repl.prompt("Move to row: "));
-        int endCol = Integer.parseInt(repl.prompt("Move to column: "));
         ChessPosition start = new ChessPosition(startRow, startCol);
         ChessPosition end = new ChessPosition(endRow, endCol);
         ChessPiece.PieceType promotionPiece = null;

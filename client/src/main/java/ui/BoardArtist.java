@@ -15,9 +15,9 @@ public class BoardArtist {
     private final ChessBoard chessBoard;
     private final List<ChessPosition> reversedPositions;
     private final StringBuilder header = new StringBuilder().append(SET_BG_COLOR_LIGHT_GREY)
-            .append(SET_TEXT_COLOR_BLACK).append("    1  2  3  4  5  6  7  8    ").append(RESET_BG_COLOR).append("\n");
+            .append(SET_TEXT_COLOR_BLACK).append("    h  g  f  e  d  c  b  a    ").append(RESET_BG_COLOR).append("\n");
     private final StringBuilder reverseHeader = new StringBuilder().append(SET_BG_COLOR_LIGHT_GREY)
-            .append(SET_TEXT_COLOR_BLACK).append("    8  7  6  5  4  3  2  1    ").append(RESET_BG_COLOR).append("\n");
+            .append(SET_TEXT_COLOR_BLACK).append("    a  b  c  d  e  f  g  h    ").append(RESET_BG_COLOR).append("\n");
 
     public BoardArtist(ChessBoard chessBoard) {
         this.chessBoard = chessBoard;
