@@ -10,7 +10,4 @@ public class JoinPlayerCommand extends JoinObserverCommand {
         this.playerColor = playerColor;
         this.commandType = CommandType.JOIN_PLAYER;
     }
-    public ChessGame.TeamColor playerColor() {
-        return playerColor;
-    }
 }
