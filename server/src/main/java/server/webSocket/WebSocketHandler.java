@@ -159,7 +159,7 @@ public class WebSocketHandler {
 
             if (endGameMessage != null) {
                 notificationMessage = new NotificationMessage(endGameMessage);
-                connections.broadcast(authData.username(), notificationMessage, makeMoveCommand.gameID());
+                connections.broadcast(null, notificationMessage, makeMoveCommand.gameID());
             }
         } catch (DataAccessException | InvalidMoveException e) {
             exceptionParser(e, session);
