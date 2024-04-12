@@ -118,7 +118,7 @@ public class SQLDataAccess implements DataAccess {
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var game = rs.getString("json");
-                        games.put(id, new GameData(id, whiteUsername, blackUsername, gameName, new Gson().fromJson(game, ChessGame.class)));  // TODO: fix this?
+                        games.put(id, new GameData(id, whiteUsername, blackUsername, gameName, new Gson().fromJson(game, ChessGame.class)));
                     }
                 }
             }
