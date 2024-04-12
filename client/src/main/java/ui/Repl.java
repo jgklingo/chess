@@ -62,7 +62,7 @@ public class Repl implements ServerMessageHandler {
     }
     @Override
     public void notify(LoadGameMessage loadGameMessage) {
-        client.currentGame = loadGameMessage.ChessGame();
+        client.currentGame = loadGameMessage.game();
         System.out.println();
         client.printBoard();
         printPrompt();

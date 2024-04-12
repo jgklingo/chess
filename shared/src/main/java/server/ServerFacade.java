@@ -73,7 +73,7 @@ public class ServerFacade {
             if (ex.getClass() != ResponseException.class) {
                 throw new ResponseException(500, ex.getMessage());
             } else {
-                throw new ResponseException(((ResponseException) ex).StatusCode(), ex.getMessage());
+                throw new ResponseException(((ResponseException) ex).statusCode(), ex.getMessage());
             }
         }
     }

@@ -47,7 +47,7 @@ public class ServerFacadeTests {
             serverFacade.register(testUserData);
             assert false;
         } catch (ResponseException e) {
-            assert e.StatusCode() == 403;
+            assert e.statusCode() == 403;
         }
     }
     @Test
@@ -66,7 +66,7 @@ public class ServerFacadeTests {
             serverFacade.register(testUserData);
             serverFacade.login(new UserData("bogus", "notapassword", "email"));
         } catch (ResponseException e) {
-            assert e.StatusCode() == 401;
+            assert e.statusCode() == 401;
         }
     }
     @Test

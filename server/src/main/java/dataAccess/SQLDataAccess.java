@@ -139,11 +139,11 @@ public class SQLDataAccess implements DataAccess {
                 preparedStatement.executeUpdate();
 
                 var resultSet = preparedStatement.getGeneratedKeys();
-                var ID = 0;
+                var id = 0;
                 if (resultSet.next()) {
-                    ID = resultSet.getInt(1);
+                    id = resultSet.getInt(1);
                 }
-                return new GameData(ID, null, null, name, null);
+                return new GameData(id, null, null, name, null);
             }
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage(), 500);
@@ -233,12 +233,12 @@ public class SQLDataAccess implements DataAccess {
                 if (!rs.next()) {
                     throw new DataAccessException("Error: bad request", 400);
                 }
-                int ID = rs.getInt("ID");
+                int id = rs.getInt("ID");
                 String whiteUsername = rs.getString("whiteUsername");
                 String blackUsername = rs.getString("blackUsername");
                 String gameName = rs.getString("gameName");
                 String json = rs.getString("json");
-                return new GameData(ID, whiteUsername, blackUsername, gameName, new Gson().fromJson(json, ChessGame.class));
+                return new GameData(id, whiteUsername, blackUsername, gameName, new Gson().fromJson(json, ChessGame.class));
             }
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage(), 500);

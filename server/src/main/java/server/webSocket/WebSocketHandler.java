@@ -64,14 +64,14 @@ public class WebSocketHandler {
                 throw new DataAccessException("Spot is already taken.");
             }
 
-            connections.add(username, session, joinPlayerCommand.GameID());
+            connections.add(username, session, joinPlayerCommand.gameID());
 
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as the %s player.".formatted(username, joinPlayerCommand.playerColor));
-            connections.broadcast(username, notificationMessage, joinPlayerCommand.GameID());
+            connections.broadcast(username, notificationMessage, joinPlayerCommand.gameID());
         } catch (DataAccessException e) {
             exceptionParser(e, session);
         }
@@ -86,14 +86,14 @@ public class WebSocketHandler {
                 throw new DataAccessException("Invalid game ID");
             }
 
-            connections.add(username, session, joinObserverCommand.GameID());
+            connections.add(username, session, joinObserverCommand.gameID());
 
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
             connections.whisper(username, loadGameMessage);
 
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s has joined the game as an observer.".formatted(username));
-            connections.broadcast(username, notificationMessage, joinObserverCommand.GameID());
+            connections.broadcast(username, notificationMessage, joinObserverCommand.gameID());
         } catch (DataAccessException e) {
             exceptionParser(e, session);
         }
