@@ -70,16 +70,26 @@ public class ChessGame {
      * @param move chess move to preform
      * @throws InvalidMoveException if move is invalid
      */
-    public void makeMove(ChessMove move) throws InvalidMoveException {
+    public String makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
         if (this.currentTurn == board.getPiece(move.getStartPosition()).getTeamColor()
                 && validMoves.contains(move)) {
             this.board = testMove(move);
 
-            if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)
-                    || isInStalemate(TeamColor.WHITE) || isInStalemate(TeamColor.BLACK)) {
+            if (isInCheckmate(TeamColor.WHITE)) {
                 gameOver = true;
-                return;
+                return "WHITE is in checkmate!";
+            }
+            else if (isInCheckmate(TeamColor.BLACK)) {
+                gameOver = true;
+                return "BLACK is in checkmate!";
+            }
+            else if (isInStalemate(TeamColor.WHITE)) {
+                gameOver = true;
+                return "WHITE is in stalemate!";
+            } else if (isInStalemate(TeamColor.BLACK)) {
+                gameOver = true;
+                return "BLACK is in stalemate!";
             }
 
             if (currentTurn == TeamColor.BLACK) {
@@ -87,6 +97,7 @@ public class ChessGame {
             } else {
                 this.currentTurn = TeamColor.BLACK;
             }
+            return null;
 
         } else {
             throw new InvalidMoveException();

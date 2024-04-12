@@ -149,12 +149,18 @@ public class WebSocketHandler {
                 throw new InvalidMoveException();
             }
 
-            chessGame.makeMove(move);
+            String endGameMessage = chessGame.makeMove(move);
+
             gameService.updateGame(makeMoveCommand.gameID(), new Gson().toJson(chessGame));
             connections.broadcast(null, new LoadGameMessage(chessGame), makeMoveCommand.gameID());
             NotificationMessage notificationMessage = new NotificationMessage(
                     "%s made the following move: %s".formatted(authData.username(), move));
             connections.broadcast(authData.username(), notificationMessage, makeMoveCommand.gameID());
+
+            if (endGameMessage != null) {
+                notificationMessage = new NotificationMessage(endGameMessage);
+                connections.broadcast(authData.username(), notificationMessage, makeMoveCommand.gameID());
+            }
         } catch (DataAccessException | InvalidMoveException e) {
             exceptionParser(e, session);
         }
