@@ -1,8 +1,10 @@
 services:
   server:
     build: .
+    depends_on:
+      - db
     ports:
-      - "8000:5000"
+      - "8080:8080"
   db:
     image: "mysql:lts"
     restart: always

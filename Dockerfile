@@ -1,6 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
-WORKDIR /server
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
-COPY . /server/
+WORKDIR /app
+COPY . /app
+RUN mvn clean package
+
+EXPOSE 8080
+
+CMD ["java", "-jar", "server/target/server-jar-with-dependencies.jar"]
