@@ -72,7 +72,7 @@ public class Client {
                     default -> help();
                 };
             }
-            case null -> throw new RuntimeException("Bad client state.");
+            default -> throw new RuntimeException("Bad client state.");
         }
     }
 
