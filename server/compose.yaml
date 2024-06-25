@@ -1,3 +1,4 @@
+name: chess
 services:
   server:
     build:
