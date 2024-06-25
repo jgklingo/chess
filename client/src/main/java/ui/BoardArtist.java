@@ -91,6 +91,32 @@ public class BoardArtist {
         string.append(header);
         return string.toString();
     }
+    public String showMovesReverse(Collection<ChessMove> moves) {
+        ArrayList<ChessPosition> markedPositions = new ArrayList<>();
+        for (ChessMove move : moves) {
+            markedPositions.add(move.getEndPosition());
+        }
+
+        StringBuilder string = new StringBuilder();
+        int squareNumber = 64;
+        string.append(reverseHeader);
+        string.append(startRow(64));
+        for (ChessPosition position : reversedPositions) {
+            if (markedPositions.contains(position)) {
+                string.append(drawMarkedSquare(position));
+            } else {
+                string.append(drawSquare(position));
+            }
+            if (--squareNumber % 8 == 0) {
+                string.append(startRow(squareNumber + 8));
+                string.append(RESET_BG_COLOR).append("\n");
+                white = !white;
+                string.append(startRow(squareNumber));
+            }
+        }
+        string.append(reverseHeader);
+        return string.toString();
+    }
     private StringBuilder drawSquare(ChessPosition position) {
         StringBuilder string = new StringBuilder();
         if (this.white) {

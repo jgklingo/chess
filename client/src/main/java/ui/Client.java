@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import chess.ChessGame.TeamColor;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
@@ -26,6 +27,17 @@ public class Client {
     private ChessGame.TeamColor activeColor = null;
     private Integer activeGameID = null;
     protected ChessGame currentGame;
+
+    final HashMap<String, Integer> columnToCoordinate = new HashMap<>() {{
+        put("a", 8);
+        put("b", 7);
+        put("c", 6);
+        put("d", 5);
+        put("e", 4);
+        put("f", 3);
+        put("g", 2);
+        put("h", 1);
+    }};
 
     private enum ClientState {
         SIGNED_IN, SIGNED_OUT, IN_GAME
@@ -178,17 +190,6 @@ public class Client {
         return "Resigned game.\n";
     }
     private String makeMove() throws ResponseException {
-        final HashMap<String, Integer> columnToCoordinate = new HashMap<>() {{
-            put("a", 8);
-            put("b", 7);
-            put("c", 6);
-            put("d", 5);
-            put("e", 4);
-            put("f", 3);
-            put("g", 2);
-            put("h", 1);
-        }};
-
         int startCol = columnToCoordinate.get(repl.prompt("Piece location column: "));
         int startRow = Integer.parseInt(repl.prompt("Piece location row: "));
         int endCol = columnToCoordinate.get(repl.prompt("Move to column: "));
@@ -207,10 +208,14 @@ public class Client {
         return "Sent move to server.\n";
     }
     private String highlightMoves() throws ResponseException {
+        int col = columnToCoordinate.get(repl.prompt("Piece location column: "));
         int row = Integer.parseInt(repl.prompt("Piece location row: "));
-        int col = Integer.parseInt(repl.prompt("Piece location column: "));
         ChessPosition position = new ChessPosition(row, col);
-        return new BoardArtist(currentGame.getBoard()).showMoves(currentGame.validMoves(position));
+        if (activeColor == TeamColor.WHITE) {
+            return new BoardArtist(currentGame.getBoard()).showMovesReverse(currentGame.validMoves(position));
+        } else {
+            return new BoardArtist(currentGame.getBoard()).showMoves(currentGame.validMoves(position));
+        }
     }
     public String help() {
         return switch (clientState) {
